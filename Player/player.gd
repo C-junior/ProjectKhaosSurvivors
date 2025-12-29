@@ -198,9 +198,22 @@ func attack():
 	# Holy Cross, Fire Ring, and Lightning are updated in _physics_process
 
 func _on_hurt_box_hurt(damage, _angle, _knockback):
-	hp -= clamp(damage-armor, 1.0, 999.0)
+	var actual_damage = clamp(damage-armor, 1.0, 999.0)
+	hp -= actual_damage
 	healthBar.max_value = maxhp
 	healthBar.value = hp
+	
+	# Screen shake on damage - intensity based on damage
+	var camera = get_viewport().get_camera_2d()
+	if camera and camera.has_method("shake"):
+		var shake_intensity = clamp(actual_damage * 1.5, 3.0, 10.0)
+		camera.shake(shake_intensity, 0.8)
+	
+	# Flash red on damage
+	modulate = Color(1.5, 0.5, 0.5, 1.0)
+	var tween = create_tween()
+	tween.tween_property(self, "modulate", Color.WHITE, 0.15)
+	
 	if hp <= 0:
 		death()
 
@@ -345,7 +358,7 @@ func calculate_experiencecap():
 	if experience_level < 20:
 		exp_cap = experience_level*5
 	elif experience_level < 40:
-		exp_cap + 95 * (experience_level-19)*8
+		exp_cap = 95 + (experience_level-19)*8
 	else:
 		exp_cap = 255 + (experience_level-39)*12
 		
