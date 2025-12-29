@@ -1,0 +1,27 @@
+[gd_scene load_steps=3 format=3 uid="uid://firering001"]
+
+[ext_resource type="Script" path="res://Player/Attack/fire_ring.gd" id="1_ring"]
+[ext_resource type="Texture2D" uid="uid://bb2tqmla8xdg8" path="res://Textures/Items/Weapons/tornado.png" id="2_sprite"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_ring"]
+radius = 15.0
+
+[node name="FireRing" type="Area2D" groups=["attack"]]
+collision_layer = 4
+collision_mask = 4
+script = ExtResource("1_ring")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+modulate = Color(1, 0.5, 0.2, 1)
+texture = ExtResource("2_sprite")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_ring")
+
+[node name="DamageTimer" type="Timer" parent="."]
+wait_time = 0.5
+autostart = true
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]
+[connection signal="body_exited" from="." to="." method="_on_body_exited"]
+[connection signal="timeout" from="DamageTimer" to="." method="_on_damage_timer_timeout"]

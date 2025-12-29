@@ -1,0 +1,14 @@
+Button
+AudioStreamPlayer
+Label
+ColorRect
+GridContainer
+TextureRect
+TextureProgressBar
+Node
+VBoxContainer
+Panel
+Control
+CanvasLayer
+CollisionShape2D
+Area2D
