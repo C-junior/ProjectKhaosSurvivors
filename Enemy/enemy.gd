@@ -59,6 +59,11 @@ func death():
 func _on_hurt_box_hurt(damage, angle, knockback_amount):
 	hp -= damage
 	knockback = angle * knockback_amount
+	
+	# Track damage dealt in GameManager
+	if GameManager:
+		GameManager.run_stats.damage_dealt += damage
+	
 	if hp <= 0:
 		death()
 	else:

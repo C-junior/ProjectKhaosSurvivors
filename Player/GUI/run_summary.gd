@@ -1,7 +1,7 @@
 extends CanvasLayer
 
 ## Run Summary Screen - Shows detailed stats at end of run
-## Displays kills, time, gold, damage dealt, weapons collected
+## Displays kills, time, gold, damage dealt, weapons and items with levels
 
 @onready var panel = $Panel
 @onready var lbl_title = $Panel/VBoxContainer/Title
@@ -45,21 +45,41 @@ func show_summary(victory: bool, stats: Dictionary):
 	lbl_damage.text = str(stats.get("damage_dealt", 0))
 	lbl_level.text = str(stats.get("level", 1))
 	
-	# Display collected weapons
+	# Clear existing items
 	for child in weapons_container.get_children():
 		child.queue_free()
 	
-	var weapons = stats.get("weapons", [])
-	for weapon in weapons:
+	# Display unique weapons and items with their level
+	var items_with_levels = stats.get("items_with_levels", {})
+	for item_base in items_with_levels:
+		var item_level = items_with_levels[item_base]
+		var item_key = item_base + str(item_level)
+		
+		# Create container with icon and level
+		var item_container = HBoxContainer.new()
+		item_container.add_theme_constant_override("separation", 2)
+		
+		# Icon
 		var icon = TextureRect.new()
-		icon.custom_minimum_size = Vector2(24, 24)
+		icon.custom_minimum_size = Vector2(20, 20)
 		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		# Try to load weapon icon
-		if UpgradeDb.UPGRADES.has(weapon):
-			var icon_path = UpgradeDb.UPGRADES[weapon].get("icon", "")
+		
+		# Try to load icon from upgrade db
+		if UpgradeDb.UPGRADES.has(item_key):
+			var icon_path = UpgradeDb.UPGRADES[item_key].get("icon", "")
 			if icon_path != "" and ResourceLoader.exists(icon_path):
 				icon.texture = load(icon_path)
-		weapons_container.add_child(icon)
+		
+		item_container.add_child(icon)
+		
+		# Level label
+		var level_label = Label.new()
+		level_label.text = "Lv" + str(item_level)
+		level_label.add_theme_font_size_override("font_size", 10)
+		level_label.add_theme_color_override("font_color", Color(0.9, 0.9, 0.9))
+		item_container.add_child(level_label)
+		
+		weapons_container.add_child(item_container)
 	
 	# Animate panel in
 	panel.scale = Vector2(0.8, 0.8)
@@ -73,3 +93,4 @@ func _on_menu_pressed():
 	emit_signal("return_to_menu")
 	get_tree().paused = false
 	get_tree().change_scene_to_file("res://TitleScreen/menu.tscn")
+

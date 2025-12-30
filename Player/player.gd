@@ -617,22 +617,36 @@ func death():
 	else:
 		sndLose.play()
 	
-	# Collect weapon names from collected_upgrades
-	var weapon_list = []
+	# Build unique items with their max level
+	var items_with_levels = {}
 	for upgrade in collected_upgrades:
 		if UpgradeDb.UPGRADES.has(upgrade):
-			if UpgradeDb.UPGRADES[upgrade]["type"] == "weapon":
-				if not upgrade in weapon_list:
-					weapon_list.append(upgrade)
+			var upgrade_type = UpgradeDb.UPGRADES[upgrade]["type"]
+			if upgrade_type == "weapon" or upgrade_type == "upgrade":
+				# Extract base name (remove trailing numbers)
+				var base_name = upgrade.rstrip("0123456789")
+				# Extract level number
+				var level_str = upgrade.substr(base_name.length())
+				var level = 1
+				if level_str.is_valid_int():
+					level = level_str.to_int()
+				# Keep the highest level for each base item
+				if not items_with_levels.has(base_name) or items_with_levels[base_name] < level:
+					items_with_levels[base_name] = level
+	
+	# Calculate total damage dealt from all attacks
+	var total_damage = 0
+	if GameManager:
+		total_damage = GameManager.run_stats.damage_dealt
 	
 	# Build stats dictionary
 	var stats = {
 		"time": time,
 		"kills": GameManager.run_stats.kills if GameManager else 0,
 		"gold": GameManager.run_stats.gold_collected if GameManager else 0,
-		"damage_dealt": GameManager.run_stats.damage_dealt if GameManager else 0,
+		"damage_dealt": total_damage,
 		"level": experience_level,
-		"weapons": weapon_list
+		"items_with_levels": items_with_levels
 	}
 	
 	# Show run summary instead of old death panel
