@@ -18,16 +18,19 @@ var javelin = preload("res://Player/Attack/javelin.tscn")
 var holyCross = preload("res://Player/Attack/holy_cross.tscn")
 var fireRing = preload("res://Player/Attack/fire_ring.tscn")
 var lightning = preload("res://Player/Attack/lightning.tscn")
+var magicMissile = preload("res://Player/Attack/magic_missile.tscn")
 
 #Evolved Attacks
 var divineWrath = preload("res://Player/Attack/divine_wrath.tscn")
 var infernoAura = preload("res://Player/Attack/inferno_aura.tscn")
 var stormCaller = preload("res://Player/Attack/storm_caller.tscn")
+var arcaneBarrage = preload("res://Player/Attack/arcane_barrage.tscn")
 
 # Evolution flags
 var holycross_evolved := false
 var firering_evolved := false
 var lightning_evolved := false
+var magicmissile_evolved := false
 
 #AttackNodes
 @onready var iceSpearTimer = get_node("%IceSpearTimer")
@@ -80,6 +83,10 @@ var firering_count = 0
 var lightning_level = 0
 var lightning_attackspeed = 2.5
 
+#MagicMissile
+var magicmissile_level = 0
+var magicmissile_attackspeed = 1.8
+var _magicmissile_timer := 0.0
 
 #Enemy Related
 var enemy_close = []
@@ -173,6 +180,8 @@ func _physics_process(delta):
 		update_firering()
 	if lightning_level > 0:
 		update_lightning(delta)
+	if magicmissile_level > 0:
+		update_magicmissile(delta)
 
 func movement():
 	var x_mov = Input.get_action_strength("right") - Input.get_action_strength("left")
@@ -347,6 +356,26 @@ func get_random_target():
 	else:
 		return Vector2.UP
 
+func update_magicmissile(delta: float):
+	_magicmissile_timer += delta
+	if _magicmissile_timer >= magicmissile_attackspeed * (1-spell_cooldown):
+		_magicmissile_timer = 0.0
+		if enemy_close.size() > 0:
+			# Number of missiles based on level
+			# Number of missiles based on level (evolved fires more)
+			var missile_count = magicmissile_level + additional_attacks
+			if magicmissile_evolved:
+				missile_count += 4  # 8 missiles total at evolved
+			for i in range(missile_count):
+				var missile
+				if magicmissile_evolved:
+					missile = arcaneBarrage.instantiate()
+				else:
+					missile = magicMissile.instantiate()
+					missile.level = magicmissile_level
+				missile.global_position = global_position
+				get_tree().current_scene.add_child(missile)
+
 
 func _on_enemy_detection_area_body_entered(body):
 	if not enemy_close.has(body):
@@ -474,6 +503,17 @@ func upgrade_character(upgrade):
 		"lightning4":
 			lightning_level = 4
 			lightning_attackspeed -= 0.5
+		"magicmissile1":
+			magicmissile_level = 1
+		"magicmissile2":
+			magicmissile_level = 2
+			magicmissile_attackspeed -= 0.2
+		"magicmissile3":
+			magicmissile_level = 3
+			magicmissile_attackspeed -= 0.2
+		"magicmissile4":
+			magicmissile_level = 4
+			magicmissile_attackspeed -= 0.3
 		"armor1","armor2","armor3","armor4":
 			armor += 1
 		"speed1","speed2","speed3","speed4":
@@ -541,6 +581,11 @@ func check_evolutions():
 	if not lightning_evolved and lightning_level >= 4 and "crown4" in collected_upgrades:
 		lightning_evolved = true
 		show_evolution_message("Storm Caller")
+	
+	# Magic Missile + Luck4 = Arcane Barrage
+	if not magicmissile_evolved and magicmissile_level >= 4 and "luck4" in collected_upgrades:
+		magicmissile_evolved = true
+		show_evolution_message("Arcane Barrage")
 
 func show_evolution_message(weapon_name: String):
 	# Display evolution notification

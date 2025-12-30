@@ -192,9 +192,41 @@ const UPGRADES = {
 	"lightning4": {
 		"icon": WEAPON_PATH + "javelin_3_new_attack.png",
 		"displayname": "Lightning",
-		"details": "Chains to 5 enemies with maximum damage",
+		"details": "Chains to 6 enemies with maximum damage",
 		"level": "Level: 4",
 		"prerequisite": ["lightning3"],
+		"type": "weapon"
+	},
+	"magicmissile1": {
+		"icon": WEAPON_PATH + "ice_spear.png",
+		"displayname": "Magic Missile",
+		"details": "A homing arcane missile that tracks enemies",
+		"level": "Level: 1",
+		"prerequisite": [],
+		"type": "weapon"
+	},
+	"magicmissile2": {
+		"icon": WEAPON_PATH + "ice_spear.png",
+		"displayname": "Magic Missile",
+		"details": "Fires 2 missiles with increased damage",
+		"level": "Level: 2",
+		"prerequisite": ["magicmissile1"],
+		"type": "weapon"
+	},
+	"magicmissile3": {
+		"icon": WEAPON_PATH + "ice_spear.png",
+		"displayname": "Magic Missile",
+		"details": "Fires 3 missiles with stronger homing",
+		"level": "Level: 3",
+		"prerequisite": ["magicmissile2"],
+		"type": "weapon"
+	},
+	"magicmissile4": {
+		"icon": WEAPON_PATH + "ice_spear.png",
+		"displayname": "Magic Missile",
+		"details": "Fires 4 powerful arcane missiles",
+		"level": "Level: 4",
+		"prerequisite": ["magicmissile3"],
 		"type": "weapon"
 	},
 	"armor1": {
@@ -543,6 +575,11 @@ const EVOLUTIONS = {
 		"requires": "crown4",
 		"evolves_into": "storm_caller",
 		"displayname": "Storm Caller"
+	},
+	"magicmissile": {
+		"requires": "luck4",
+		"evolves_into": "arcane_barrage",
+		"displayname": "Arcane Barrage"
 	}
 }
 

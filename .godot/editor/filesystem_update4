@@ -1,5 +1,3 @@
-res://Player/Attack/fire_ring.tscn
-res://Player/Attack/holy_cross.tscn
 res://World/world.tscn
 res://Player/player.tscn
 res://Enemy/enemy_kobold_weak.tscn
@@ -18,3 +16,5 @@ res://Utility/upgrade_db.tscn
 res://Objects/experience_gem.tscn
 res://Player/Attack/javelin.tscn
 res://Player/GUI/kill_counter.tscn
+res://Player/Attack/holy_cross.tscn
+res://Player/Attack/fire_ring.tscn
