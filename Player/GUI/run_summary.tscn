@@ -1,0 +1,100 @@
+[gd_scene load_steps=2 format=3 uid="uid://ce1ciexai6iyy"]
+
+[ext_resource type="Script" path="res://Player/GUI/run_summary.gd" id="1_summary"]
+
+[node name="RunSummary" type="CanvasLayer"]
+layer = 100
+script = ExtResource("1_summary")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.7)
+
+[node name="Panel" type="PanelContainer" parent="."]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -140.0
+offset_top = -120.0
+offset_right = 140.0
+offset_bottom = 120.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Panel"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Title" type="Label" parent="Panel/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "VICTORY!"
+horizontal_alignment = 1
+
+[node name="StatsGrid" type="GridContainer" parent="Panel/VBoxContainer"]
+layout_mode = 2
+columns = 2
+
+[node name="TimeLabel" type="Label" parent="Panel/VBoxContainer/StatsGrid"]
+layout_mode = 2
+text = "Time:"
+
+[node name="TimeValue" type="Label" parent="Panel/VBoxContainer/StatsGrid"]
+layout_mode = 2
+text = "00:00"
+horizontal_alignment = 2
+
+[node name="KillsLabel" type="Label" parent="Panel/VBoxContainer/StatsGrid"]
+layout_mode = 2
+text = "Kills:"
+
+[node name="KillsValue" type="Label" parent="Panel/VBoxContainer/StatsGrid"]
+layout_mode = 2
+text = "0"
+horizontal_alignment = 2
+
+[node name="GoldLabel" type="Label" parent="Panel/VBoxContainer/StatsGrid"]
+layout_mode = 2
+text = "Gold:"
+
+[node name="GoldValue" type="Label" parent="Panel/VBoxContainer/StatsGrid"]
+layout_mode = 2
+text = "0"
+horizontal_alignment = 2
+
+[node name="DamageLabel" type="Label" parent="Panel/VBoxContainer/StatsGrid"]
+layout_mode = 2
+text = "Damage:"
+
+[node name="DamageValue" type="Label" parent="Panel/VBoxContainer/StatsGrid"]
+layout_mode = 2
+text = "0"
+horizontal_alignment = 2
+
+[node name="LevelLabel" type="Label" parent="Panel/VBoxContainer/StatsGrid"]
+layout_mode = 2
+text = "Level:"
+
+[node name="LevelValue" type="Label" parent="Panel/VBoxContainer/StatsGrid"]
+layout_mode = 2
+text = "1"
+horizontal_alignment = 2
+
+[node name="WeaponsLabel" type="Label" parent="Panel/VBoxContainer"]
+layout_mode = 2
+text = "Weapons Collected:"
+horizontal_alignment = 1
+
+[node name="WeaponsContainer" type="HBoxContainer" parent="Panel/VBoxContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="BtnMenu" type="Button" parent="Panel/VBoxContainer"]
+layout_mode = 2
+text = "Return to Menu"

@@ -1,4 +1,4 @@
-[gd_scene load_steps=21 format=3 uid="uid://dncgepmkc4jf4"]
+[gd_scene load_steps=22 format=3 uid="uid://dncgepmkc4jf4"]
 
 [ext_resource type="Script" uid="uid://c7hqhm5tmexsk" path="res://Player/player.gd" id="1_37q80"]
 [ext_resource type="Texture2D" uid="uid://doa3scrwgj2oq" path="res://Textures/Player/player_sprite.png" id="1_jefax"]
@@ -15,6 +15,7 @@
 [ext_resource type="AudioStream" uid="uid://ca6physj6mqei" path="res://Audio/SoundEffect/Lose.ogg" id="11_28kfi"]
 [ext_resource type="PackedScene" uid="uid://b7c7gsdx2rkjm" path="res://Utility/basic_button.tscn" id="12_i8esf"]
 [ext_resource type="PackedScene" uid="uid://dpausemenu001" path="res://Player/GUI/pause_menu.tscn" id="13_pause"]
+[ext_resource type="PackedScene" uid="uid://ce1ciexai6iyy" path="res://Player/GUI/run_summary.tscn" id="14_summary"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_nffdp"]
 radius = 4.0
@@ -250,6 +251,8 @@ columns = 10
 layout_mode = 1
 
 [node name="PauseMenu" parent="." instance=ExtResource("13_pause")]
+
+[node name="RunSummary" parent="." instance=ExtResource("14_summary")]
 
 [connection signal="hurt" from="HurtBox" to="." method="_on_hurt_box_hurt"]
 [connection signal="timeout" from="Attack/IceSpearTimer" to="." method="_on_ice_spear_timer_timeout"]

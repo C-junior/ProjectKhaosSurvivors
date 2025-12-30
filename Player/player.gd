@@ -105,6 +105,7 @@ var enemy_close = []
 @onready var lblResult = get_node("%lbl_Result")
 @onready var sndVictory = get_node("%snd_victory")
 @onready var sndLose = get_node("%snd_lose")
+@onready var runSummary = $RunSummary
 
 #Signal
 signal playerdeath
@@ -605,18 +606,48 @@ func adjust_gui_collection(upgrade):
 					collectedUpgrades.add_child(new_item)
 
 func death():
-	deathPanel.visible = true
 	emit_signal("playerdeath")
 	get_tree().paused = true
-	var tween = deathPanel.create_tween()
-	tween.tween_property(deathPanel,"position",Vector2(220,50),3.0).set_trans(Tween.TRANS_QUINT).set_ease(Tween.EASE_OUT)
-	tween.play()
-	if time >= 600:
-		lblResult.text = "You Win"
+	
+	var is_victory = time >= 600
+	
+	# Play sound
+	if is_victory:
 		sndVictory.play()
 	else:
-		lblResult.text = "You Lose"
 		sndLose.play()
+	
+	# Collect weapon names from collected_upgrades
+	var weapon_list = []
+	for upgrade in collected_upgrades:
+		if UpgradeDb.UPGRADES.has(upgrade):
+			if UpgradeDb.UPGRADES[upgrade]["type"] == "weapon":
+				if not upgrade in weapon_list:
+					weapon_list.append(upgrade)
+	
+	# Build stats dictionary
+	var stats = {
+		"time": time,
+		"kills": GameManager.run_stats.kills if GameManager else 0,
+		"gold": GameManager.run_stats.gold_collected if GameManager else 0,
+		"damage_dealt": GameManager.run_stats.damage_dealt if GameManager else 0,
+		"level": experience_level,
+		"weapons": weapon_list
+	}
+	
+	# Show run summary instead of old death panel
+	if runSummary:
+		runSummary.show_summary(is_victory, stats)
+	else:
+		# Fallback to old death panel if run summary not found
+		deathPanel.visible = true
+		var tween = deathPanel.create_tween()
+		tween.tween_property(deathPanel,"position",Vector2(220,50),3.0).set_trans(Tween.TRANS_QUINT).set_ease(Tween.EASE_OUT)
+		tween.play()
+		if is_victory:
+			lblResult.text = "You Win"
+		else:
+			lblResult.text = "You Lose"
 
 
 func _on_btn_menu_click_end():
