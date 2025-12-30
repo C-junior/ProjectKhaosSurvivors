@@ -19,6 +19,16 @@ var holyCross = preload("res://Player/Attack/holy_cross.tscn")
 var fireRing = preload("res://Player/Attack/fire_ring.tscn")
 var lightning = preload("res://Player/Attack/lightning.tscn")
 
+#Evolved Attacks
+var divineWrath = preload("res://Player/Attack/divine_wrath.tscn")
+var infernoAura = preload("res://Player/Attack/inferno_aura.tscn")
+var stormCaller = preload("res://Player/Attack/storm_caller.tscn")
+
+# Evolution flags
+var holycross_evolved := false
+var firering_evolved := false
+var lightning_evolved := false
+
 #AttackNodes
 @onready var iceSpearTimer = get_node("%IceSpearTimer")
 @onready var iceSpearAttackTimer = get_node("%IceSpearAttackTimer")
@@ -277,7 +287,12 @@ func update_holycross(delta: float):
 		_holycross_timer = 0.0
 		var count = 1 + additional_attacks
 		for i in range(count):
-			var cross = holyCross.instantiate()
+			var cross
+			# Use evolved version if applicable
+			if holycross_evolved:
+				cross = divineWrath.instantiate()
+			else:
+				cross = holyCross.instantiate()
 			cross.global_position = global_position
 			# Get target - if no enemies, use a random direction
 			var target_pos = get_random_target()
@@ -294,9 +309,15 @@ func update_firering():
 		# Spawn fire ring(s) that orbit
 		var count = firering_count + additional_attacks
 		for i in range(count):
-			var ring = fireRing.instantiate()
+			var ring
+			# Use evolved version if applicable
+			if firering_evolved:
+				ring = infernoAura.instantiate()
+			else:
+				ring = fireRing.instantiate()
 			ring.global_position = global_position
-			ring.level = firering_level
+			if not firering_evolved:
+				ring.level = firering_level
 			ring.orbit_index = i
 			add_child(ring)
 
@@ -307,10 +328,16 @@ func update_lightning(delta: float):
 		if enemy_close.size() > 0:
 			var count = 1 + additional_attacks
 			for i in range(count):
-				var bolt = lightning.instantiate()
+				var bolt
+				# Use evolved version if applicable
+				if lightning_evolved:
+					bolt = stormCaller.instantiate()
+				else:
+					bolt = lightning.instantiate()
 				bolt.global_position = global_position
 				bolt.current_target = enemy_close.pick_random()
-				bolt.level = lightning_level
+				if not lightning_evolved:
+					bolt.level = lightning_level
 				add_child(bolt)
 
 func get_random_target():
@@ -481,10 +508,50 @@ func upgrade_character(upgrade):
 		i.queue_free()
 	upgrade_options.clear()
 	collected_upgrades.append(upgrade)
+	
+	# Check for weapon evolutions
+	check_evolutions()
+	
 	levelPanel.visible = false
 	levelPanel.position = Vector2(800,50)
 	get_tree().paused = false
 	calculate_experience(0)
+
+func check_evolutions():
+	# Holy Cross + Armor4 = Divine Wrath
+	if not holycross_evolved and holycross_level >= 4 and "armor4" in collected_upgrades:
+		holycross_evolved = true
+		show_evolution_message("Divine Wrath")
+	
+	# Fire Ring + Speed4 = Inferno Aura
+	if not firering_evolved and firering_level >= 4 and "speed4" in collected_upgrades:
+		firering_evolved = true
+		# Respawn fire rings as evolved version
+		_firering_spawned = false
+		# Remove old fire rings
+		for child in get_children():
+			if child.is_in_group("attack") and child.has_method("update_fire_ring"):
+				child.queue_free()
+		show_evolution_message("Inferno Aura")
+	
+	# Lightning + Crown4 = Storm Caller
+	if not lightning_evolved and lightning_level >= 4 and "crown4" in collected_upgrades:
+		lightning_evolved = true
+		show_evolution_message("Storm Caller")
+
+func show_evolution_message(weapon_name: String):
+	# Display evolution notification
+	print("[EVOLUTION] %s unlocked!" % weapon_name)
+	
+	# Screen shake for epic moment
+	var camera = get_viewport().get_camera_2d()
+	if camera and camera.has_method("shake"):
+		camera.shake(8.0, 1.0)
+	
+	# Flash gold
+	modulate = Color(1.5, 1.3, 0.5, 1.0)
+	var tween = create_tween()
+	tween.tween_property(self, "modulate", Color.WHITE, 0.5)
 	
 func get_random_item():
 	var dblist = []
@@ -544,7 +611,7 @@ func death():
 	var tween = deathPanel.create_tween()
 	tween.tween_property(deathPanel,"position",Vector2(220,50),3.0).set_trans(Tween.TRANS_QUINT).set_ease(Tween.EASE_OUT)
 	tween.play()
-	if time >= 300:
+	if time >= 600:
 		lblResult.text = "You Win"
 		sndVictory.play()
 	else:

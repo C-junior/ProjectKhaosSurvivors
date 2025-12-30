@@ -528,6 +528,21 @@ const EVOLUTIONS = {
 		"requires": "ring4",
 		"evolves_into": "spear_barrage",
 		"displayname": "Spear Barrage"
+	},
+	"holycross": {
+		"requires": "armor4",
+		"evolves_into": "divine_wrath",
+		"displayname": "Divine Wrath"
+	},
+	"firering": {
+		"requires": "speed4",
+		"evolves_into": "inferno_aura",
+		"displayname": "Inferno Aura"
+	},
+	"lightning": {
+		"requires": "crown4",
+		"evolves_into": "storm_caller",
+		"displayname": "Storm Caller"
 	}
 }
 

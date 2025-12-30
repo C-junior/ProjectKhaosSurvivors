@@ -1,0 +1,28 @@
+[gd_scene load_steps=3 format=3 uid="uid://infernoaura001"]
+
+[ext_resource type="Script" path="res://Player/Attack/inferno_aura.gd" id="1_inferno"]
+[ext_resource type="Texture2D" uid="uid://dlx33roiu0vlj" path="res://Textures/GUI/exp_progress.png" id="2_sprite"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_ia1"]
+radius = 25.0
+
+[node name="InfernoAura" type="Area2D"]
+collision_layer = 0
+collision_mask = 4
+script = ExtResource("1_inferno")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+modulate = Color(1.2, 0.6, 0.2, 1)
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("2_sprite")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_ia1")
+
+[node name="DamageTimer" type="Timer" parent="."]
+wait_time = 0.3
+autostart = true
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]
+[connection signal="body_exited" from="." to="." method="_on_body_exited"]
+[connection signal="timeout" from="DamageTimer" to="." method="_on_damage_timer_timeout"]

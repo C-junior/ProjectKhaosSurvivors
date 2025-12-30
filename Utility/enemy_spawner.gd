@@ -6,7 +6,7 @@ extends Node2D
 
 # Elite spawn configuration
 @export var elite_spawn_interval: float = 60.0  # Seconds between elite spawns
-@export var boss_spawn_interval: float = 300.0  # Seconds between boss spawns (5 min)
+@export var boss_spawn_interval: float = 600.0  # Seconds between boss spawns (10 min)
 
 @onready var player = get_tree().get_first_node_in_group("player")
 
