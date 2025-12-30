@@ -1,7 +1,7 @@
-[gd_scene load_steps=3 format=3 uid="uid://firering001"]
+[gd_scene load_steps=4 format=3 uid="uid://firering001"]
 
-[ext_resource type="Script" path="res://Player/Attack/fire_ring.gd" id="1_ring"]
-[ext_resource type="Texture2D" uid="uid://bb2tqmla8xdg8" path="res://Textures/Items/Weapons/tornado.png" id="2_sprite"]
+[ext_resource type="Script" uid="uid://b0ulf24y5xmhv" path="res://Player/Attack/fire_ring.gd" id="1_ring"]
+[ext_resource type="Texture2D" uid="uid://dh5x7m1l12fnk" path="res://Textures/Items/Weapons/fire-ring.png" id="2_tfm0g"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_ring"]
 radius = 15.0
@@ -12,8 +12,8 @@ collision_mask = 4
 script = ExtResource("1_ring")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
-modulate = Color(1, 0.5, 0.2, 1)
-texture = ExtResource("2_sprite")
+scale = Vector2(0.2, 0.2)
+texture = ExtResource("2_tfm0g")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("CircleShape2D_ring")

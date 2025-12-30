@@ -27,22 +27,26 @@ func _ready():
 	
 	match level:
 		1:
-			damage = 3
+			damage = 5  # Up from 3
 			orbit_radius = 50.0
+			tick_rate = 0.5
 			attack_size = 1.0 * (1 + player.spell_size)
 		2:
-			damage = 4
+			damage = 7  # Up from 4
 			orbit_radius = 60.0
+			tick_rate = 0.45
 			attack_size = 1.1 * (1 + player.spell_size)
 		3:
-			damage = 5
+			damage = 9  # Up from 5
 			orbit_radius = 70.0
 			orbit_speed = 200.0
+			tick_rate = 0.4
 			attack_size = 1.2 * (1 + player.spell_size)
 		4:
-			damage = 6
+			damage = 12  # Up from 6, doubled for late game
 			orbit_radius = 80.0
 			orbit_speed = 220.0
+			tick_rate = 0.35  # Faster ticks
 			attack_size = 1.3 * (1 + player.spell_size)
 	
 	scale = Vector2.ONE * attack_size

@@ -24,7 +24,11 @@ var enemy_scenes = {
 	"kobold_strong": preload("res://Enemy/enemy_kobold_strong.tscn"),
 	"cyclops": preload("res://Enemy/enemy_cyclops.tscn"),
 	"juggernaut": preload("res://Enemy/enemy_juggernaut.tscn"),
-	"super": preload("res://Enemy/enemy_super.tscn")
+	"super": preload("res://Enemy/enemy_super.tscn"),
+	# New enemies
+	"slime": preload("res://Enemy/enemy_slime.tscn"),
+	"ghost": preload("res://Enemy/enemy_ghost.tscn"),
+	"bomber": preload("res://Enemy/enemy_bomber.tscn")
 }
 
 # Treasure chest
@@ -60,6 +64,23 @@ func _on_timer_timeout():
 					add_child(enemy_spawn)
 					counter += 1
 	
+	# Spawn Slimes in groups (every 3 seconds, from start)
+	if time % 3 == 0 and time >= 0:
+		var slime_count = 2 + int(time / 60)  # More slimes over time
+		slime_count = min(slime_count, 6)  # Cap at 6
+		for i in range(slime_count):
+			spawn_enemy_type("slime")
+	
+	# Spawn Ghosts (every 8 seconds, after 90 seconds)
+	if time % 8 == 0 and time >= 90:
+		spawn_enemy_type("ghost")
+		if time >= 180:
+			spawn_enemy_type("ghost")  # 2 ghosts after 3 min
+	
+	# Spawn Bombers (every 15 seconds, after 150 seconds)
+	if time % 15 == 0 and time >= 150:
+		spawn_enemy_type("bomber")
+	
 	# Elite spawn check
 	if time_since_last_elite >= elite_spawn_interval:
 		spawn_elite()
@@ -71,6 +92,12 @@ func _on_timer_timeout():
 		time_since_last_boss = 0.0
 	
 	emit_signal("changetime", time)
+
+func spawn_enemy_type(enemy_type: String):
+	if enemy_scenes.has(enemy_type):
+		var enemy = enemy_scenes[enemy_type].instantiate()
+		enemy.global_position = get_random_position()
+		add_child(enemy)
 
 func spawn_elite():
 	# Pick a random enemy type based on current time
@@ -134,7 +161,8 @@ func spawn_boss():
 func spawn_treasure_at(pos: Vector2, tier: int = 1):
 	var chest = treasure_chest.instantiate()
 	chest.global_position = pos
-	chest.gold_amount = 10 * tier
+	# Tier 1 (elite) = 8 gold, Tier 2 = 16, Tier 3 (boss) = 24
+	chest.gold_amount = 8 * tier
 	get_parent().call_deferred("add_child", chest)
 
 func _on_treasure_spawn_triggered(position: Vector2):

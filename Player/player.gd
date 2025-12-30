@@ -495,8 +495,10 @@ func upgrade_character(upgrade):
 		"crown1","crown2","crown3","crown4":
 			xp_multiplier += 0.10
 		"duplicator1","duplicator2":
-			duplicator_bonus += 1
-			additional_attacks += 1
+			# Cap duplicator bonus at +2 to prevent OP stacking with Ring
+			if duplicator_bonus < 2:
+				duplicator_bonus += 1
+				additional_attacks += 1
 		"regen1","regen2","regen3","regen4":
 			regen += 0.5
 		"food":

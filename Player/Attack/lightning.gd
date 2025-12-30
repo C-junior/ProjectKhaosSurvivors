@@ -26,19 +26,19 @@ func _ready():
 		1:
 			damage = 12
 			chain_count = 2
-			chain_range = 200.0  # Doubled for better chaining
+			chain_range = 250.0  # Up from 200, +50%
 		2:
-			damage = 15
+			damage = 16
 			chain_count = 3
-			chain_range = 250.0
+			chain_range = 325.0  # Up from 250
 		3:
-			damage = 18
+			damage = 20
 			chain_count = 4
-			chain_range = 300.0
+			chain_range = 400.0  # Up from 300
 		4:
-			damage = 22
-			chain_count = 5
-			chain_range = 350.0
+			damage = 25
+			chain_count = 6  # Up from 5
+			chain_range = 500.0  # Up from 350, +50%
 	
 	chains_remaining = chain_count
 	

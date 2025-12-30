@@ -29,21 +29,25 @@ func _ready():
 			damage = 8
 			speed = 150.0
 			max_distance = 200.0
+			return_speed_mult = 1.75  # Up from 1.5
 			attack_size = 1.0 * (1 + player.spell_size)
 		2:
-			damage = 10
+			damage = 11
 			speed = 175.0
 			max_distance = 250.0
-			attack_size = 1.0 * (1 + player.spell_size)
+			return_speed_mult = 1.85
+			attack_size = 1.05 * (1 + player.spell_size)
 		3:
-			damage = 12
+			damage = 14
 			speed = 200.0
 			max_distance = 300.0
+			return_speed_mult = 2.0  # Much faster return
 			attack_size = 1.1 * (1 + player.spell_size)
 		4:
-			damage = 15
-			speed = 200.0
+			damage = 18
+			speed = 220.0
 			max_distance = 350.0
+			return_speed_mult = 2.25  # Very fast return
 			attack_size = 1.2 * (1 + player.spell_size)
 	
 	# Initial direction toward target or random
