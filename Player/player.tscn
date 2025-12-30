@@ -51,7 +51,7 @@ shape = SubResource("CapsuleShape2D_nffdp")
 
 [node name="walkTimer" type="Timer" parent="."]
 unique_name_in_owner = true
-wait_time = 0.2
+wait_time = 0.1
 one_shot = true
 
 [node name="HurtBox" parent="." instance=ExtResource("3_gs51i")]

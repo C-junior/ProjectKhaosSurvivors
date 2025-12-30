@@ -1,10 +1,9 @@
-[gd_scene load_steps=3 format=3 uid="uid://arcanebarrage001"]
+[gd_scene load_steps=4 format=3 uid="uid://bp02mr41yplsi"]
 
-[ext_resource type="Script" path="res://Player/Attack/arcane_barrage.gd" id="1_barrage"]
-[ext_resource type="Texture2D" uid="uid://dx7xx6vfahxlq" path="res://Textures/GUI/exp_background.png" id="2_sprite"]
+[ext_resource type="Script" uid="uid://tblsosbkgqp5" path="res://Player/Attack/arcane_barrage.gd" id="1_barrage"]
+[ext_resource type="Texture2D" uid="uid://bcq2cyxd211e8" path="res://Textures/Items/Weapons/magic-missle.png" id="2_krc85"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_ab1"]
-radius = 10.0
 
 [node name="ArcaneBarrage" type="Area2D"]
 collision_layer = 0
@@ -13,8 +12,8 @@ script = ExtResource("1_barrage")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 modulate = Color(1, 0.8, 0.3, 1)
-scale = Vector2(0.2, 0.2)
-texture = ExtResource("2_sprite")
+scale = Vector2(0.15, 0.15)
+texture = ExtResource("2_krc85")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("CircleShape2D_ab1")

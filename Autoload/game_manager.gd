@@ -255,3 +255,116 @@ func get_random_upgrade_from_pool(exclude: Array = []) -> String:
 	if valid.size() > 0:
 		return valid.pick_random()
 	return ""
+
+# --- Character Unlock System ---
+const CHARACTER_UNLOCKS = {
+	"mage": {
+		"name": "Mage",
+		"description": "Starting character",
+		"unlock_condition": "default",
+		"sprite": "res://Textures/Player/player_sprite.png",
+		"starting_weapon": "icespear1",
+		"hp_bonus": 0,
+		"speed_bonus": 0,
+		"special": "+20% Spell Size"
+	},
+	"knight": {
+		"name": "Knight",
+		"description": "Tanky close-range fighter",
+		"unlock_condition": "reach_level_15",
+		"sprite": "res://Textures/Player/knight_sprite.png",
+		"starting_weapon": "holycross1",
+		"hp_bonus": 30,
+		"speed_bonus": -10,
+		"special": "+2 Armor"
+	},
+	"rogue": {
+		"name": "Rogue",
+		"description": "Fast and deadly",
+		"unlock_condition": "kill_100_enemies",
+		"sprite": "res://Textures/Player/rogue_sprite.png",
+		"starting_weapon": "lightning1",
+		"hp_bonus": -20,
+		"speed_bonus": 30,
+		"special": "-10% Cooldowns"
+	},
+	"necromancer": {
+		"name": "Necromancer",
+		"description": "Master of dark magic",
+		"unlock_condition": "win_run",
+		"sprite": "res://Textures/Player/player_sprite.png",
+		"starting_weapon": "magicmissile1",
+		"hp_bonus": -10,
+		"speed_bonus": 0,
+		"special": "+1 Additional Attack"
+	},
+	"berserker": {
+		"name": "Berserker",
+		"description": "More damage at low HP",
+		"unlock_condition": "kill_500_enemies_total",
+		"sprite": "res://Textures/Player/player_sprite.png",
+		"starting_weapon": "tornado1",
+		"hp_bonus": 50,
+		"speed_bonus": 20,
+		"special": "Rage Mode at 25% HP"
+	}
+}
+
+# Lifetime stats for unlocks
+var lifetime_stats = {
+	"total_kills": 0,
+	"total_runs": 0,
+	"total_wins": 0,
+	"highest_level": 0,
+	"evolutions_unlocked": 0
+}
+
+func check_unlock_conditions():
+	# Check each character unlock condition
+	for char_id in CHARACTER_UNLOCKS:
+		if char_id in persistent_data.unlocked_characters:
+			continue
+		
+		var condition = CHARACTER_UNLOCKS[char_id].unlock_condition
+		var unlocked = false
+		
+		match condition:
+			"default":
+				unlocked = true
+			"reach_level_15":
+				unlocked = current_run.level >= 15 or lifetime_stats.highest_level >= 15
+			"kill_100_enemies":
+				unlocked = run_stats.kills >= 100
+			"win_run":
+				unlocked = lifetime_stats.total_wins >= 1
+			"kill_500_enemies_total":
+				unlocked = lifetime_stats.total_kills >= 500
+		
+		if unlocked and not char_id in persistent_data.unlocked_characters:
+			unlock_character(char_id)
+
+func unlock_character(char_id: String):
+	if not char_id in persistent_data.unlocked_characters:
+		persistent_data.unlocked_characters.append(char_id)
+		print("[UNLOCK] Character unlocked: %s" % CHARACTER_UNLOCKS[char_id].name)
+		save_persistent_data()
+
+func is_character_unlocked(char_id: String) -> bool:
+	return char_id in persistent_data.unlocked_characters
+
+func get_unlocked_characters() -> Array:
+	return persistent_data.unlocked_characters
+
+func get_character_data(char_id: String) -> Dictionary:
+	if CHARACTER_UNLOCKS.has(char_id):
+		return CHARACTER_UNLOCKS[char_id]
+	return {}
+
+func update_lifetime_stats():
+	lifetime_stats.total_kills += run_stats.kills
+	lifetime_stats.total_runs += 1
+	if current_run.level > lifetime_stats.highest_level:
+		lifetime_stats.highest_level = current_run.level
+	
+	# Check unlocks at end of run
+	check_unlock_conditions()

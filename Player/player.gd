@@ -428,6 +428,21 @@ func set_expbar(set_value = 1, set_max_value = 100):
 func levelup():
 	sndLevelUp.play()
 	lblLevel.text = str("Level: ",experience_level)
+	
+	# Level-up visual effects
+	# Screen shake
+	var camera = get_viewport().get_camera_2d()
+	if camera and camera.has_method("shake"):
+		camera.shake(4.0, 0.3)
+	
+	# Golden glow effect
+	modulate = Color(1.5, 1.4, 0.8, 1.0)
+	var glow_tween = create_tween()
+	glow_tween.tween_property(self, "modulate", Color.WHITE, 0.5)
+	
+	# Spawn level-up particles
+	ParticleFactory.spawn_hit_particles(get_parent(), global_position, 12, Color(1.0, 0.9, 0.3))
+	
 	var tween = levelPanel.create_tween()
 	tween.tween_property(levelPanel,"position",Vector2(220,50),0.2).set_trans(Tween.TRANS_QUINT).set_ease(Tween.EASE_IN)
 	tween.play()
