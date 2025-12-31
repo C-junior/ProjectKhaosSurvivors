@@ -74,6 +74,14 @@ func start_chain(from_pos: Vector2, target: Node2D):
 	if is_instance_valid(target) and target.has_method("_on_hurt_box_hurt"):
 		var angle = from_pos.direction_to(target.global_position)
 		target._on_hurt_box_hurt(damage, angle, knockback_amount)
+		
+		# Spawn damage number
+		var damage_num_scene = preload("res://Utility/damage_number.tscn")
+		var damage_num = damage_num_scene.instantiate()
+		damage_num.global_position = target.global_position + Vector2(0, -10)
+		damage_num.damage_amount = damage
+		damage_num.damage_type = "lightning"
+		get_tree().current_scene.add_child(damage_num)
 	
 	hit_enemies.append(target)
 	chains_remaining -= 1

@@ -6,7 +6,8 @@ extends Node2D
 
 # Elite spawn configuration
 @export var elite_spawn_interval: float = 60.0  # Seconds between elite spawns
-@export var boss_spawn_interval: float = 600.0  # Seconds between boss spawns (10 min)
+@export var mini_boss_times: Array[int] = [300, 600]  # 5 min, 10 min
+@export var final_boss_time: int = 900  # 15 min
 
 @onready var player = get_tree().get_first_node_in_group("player")
 
@@ -14,9 +15,10 @@ extends Node2D
 
 # Elite tracking
 var time_since_last_elite: float = 0.0
-var time_since_last_boss: float = 0.0
 var elite_count: int = 0
 var boss_count: int = 0
+var final_boss_spawned := false
+var final_boss_killed := false
 
 # Preload enemy scenes for elite spawning
 var enemy_scenes = {
@@ -46,7 +48,6 @@ func _ready():
 func _on_timer_timeout():
 	time += 1
 	time_since_last_elite += 1
-	time_since_last_boss += 1
 	
 	# Regular enemy spawning
 	var enemy_spawns = spawns
@@ -86,10 +87,13 @@ func _on_timer_timeout():
 		spawn_elite()
 		time_since_last_elite = 0.0
 	
-	# Boss spawn check
-	if time_since_last_boss >= boss_spawn_interval:
-		spawn_boss()
-		time_since_last_boss = 0.0
+	# Mini-boss spawn check (at 5 min and 10 min)
+	if time in mini_boss_times:
+		spawn_mini_boss()
+	
+	# Final boss spawn at 15 min
+	if time == final_boss_time and not final_boss_spawned:
+		spawn_final_boss()
 	
 	emit_signal("changetime", time)
 
@@ -128,35 +132,73 @@ func spawn_elite():
 		# Elite drops treasure on death
 		elite.tree_exiting.connect(func(): spawn_treasure_at(elite.global_position, 1))
 
-func spawn_boss():
-	# Spawn the strongest available enemy as a boss
-	var boss_type = "super"
-	if time < 180:
-		boss_type = "cyclops"
+func spawn_mini_boss():
+	# Mini-boss: stronger than elite, weaker than final boss
+	var boss_type = "juggernaut" if time >= 600 else "cyclops"
 	
 	if enemy_scenes.has(boss_type):
 		var boss = enemy_scenes[boss_type].instantiate()
 		boss.global_position = get_random_position()
 		
-		# Massive boss modifiers
-		boss.hp *= 10
-		boss.experience *= 10
-		boss.enemy_damage *= 2
-		boss.enemy_type = "boss_" + boss_type
+		# Mini-boss modifiers (5x stats)
+		boss.hp *= 5
+		boss.experience *= 5
+		boss.enemy_damage = int(boss.enemy_damage * 1.5)
+		boss.enemy_type = "miniboss_" + boss_type
 		
-		# Visual - red glow and big
-		boss.modulate = Color(1.0, 0.3, 0.3, 1.0)
-		boss.scale *= 2.0
+		# Visual - purple glow
+		boss.modulate = Color(0.8, 0.3, 1.0, 1.0)
+		boss.scale *= 1.5
 		
 		add_child(boss)
 		boss_count += 1
 		
 		# Emit boss spawned signal
 		if GameManager:
-			GameManager.boss_spawned.emit(boss_type)
+			GameManager.boss_spawned.emit("mini_" + boss_type)
 		
-		# Boss drops treasure on death
-		boss.tree_exiting.connect(func(): spawn_treasure_at(boss.global_position, 3))
+		# Mini-boss drops treasure on death
+		boss.tree_exiting.connect(func(): spawn_treasure_at(boss.global_position, 2))
+
+func spawn_final_boss():
+	final_boss_spawned = true
+	
+	# Final boss: the "super" enemy with massive stats
+	if enemy_scenes.has("super"):
+		var boss = enemy_scenes["super"].instantiate()
+		boss.global_position = get_random_position()
+		
+		# Final boss modifiers (15x stats)
+		boss.hp *= 15
+		boss.experience *= 15
+		boss.enemy_damage *= 3
+		boss.enemy_type = "final_boss"
+		
+		# Visual - red glow and massive
+		boss.modulate = Color(1.0, 0.2, 0.2, 1.0)
+		boss.scale *= 2.5
+		
+		add_child(boss)
+		boss_count += 1
+		
+		# Screen shake for dramatic entrance
+		var camera = get_viewport().get_camera_2d()
+		if camera and camera.has_method("shake"):
+			camera.big_shake()
+		
+		# Emit boss spawned signal
+		if GameManager:
+			GameManager.boss_spawned.emit("final_boss")
+		
+		# Final boss death = VICTORY!
+		boss.tree_exiting.connect(_on_final_boss_killed)
+
+func _on_final_boss_killed():
+	final_boss_killed = true
+	# Trigger victory through player death function (time >= 900 will show "Victory")
+	if player and player.has_method("death"):
+		player.time = 900  # Ensure victory screen shows
+		player.death()
 
 func spawn_treasure_at(pos: Vector2, tier: int = 1):
 	var chest = treasure_chest.instantiate()

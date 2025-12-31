@@ -73,7 +73,7 @@ func spawn_ice_trail():
 func enemy_hit(charge = 1):
 	hp -= charge
 	# Spawn ice hit particles
-	ParticleFactory.spawn_hit_particles(get_parent(), global_position, 4, Color(0.5, 0.8, 1.0))
+	ParticleFactory.spawn_hit_particles(get_tree().current_scene, global_position, 4, Color(0.5, 0.8, 1.0))
 	if hp <= 0:
 		emit_signal("remove_from_array",self)
 		queue_free()

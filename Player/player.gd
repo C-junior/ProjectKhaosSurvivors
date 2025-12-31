@@ -48,6 +48,9 @@ var collected_upgrades = []
 var upgrade_options = []
 var armor = 0
 var speed = 0
+
+# Weapon slot limit
+const MAX_WEAPON_SLOTS = 6
 var spell_cooldown = 0
 var spell_size = 0
 var additional_attacks = 0
@@ -94,6 +97,15 @@ var _magicmissile_timer := 0.0
 
 #Enemy Related
 var enemy_close = []
+
+# Dash ability
+var can_dash := true
+var is_dashing := false
+var dash_speed := 300.0
+var dash_duration := 0.15
+var dash_cooldown := 3.0
+var dash_timer := 0.0
+var dash_direction := Vector2.ZERO
 
 
 @onready var sprite = $Sprite2D
@@ -169,7 +181,26 @@ func apply_persistent_upgrades():
 		luck += upgrades.luck * 0.05
 
 func _physics_process(delta):
-	movement()
+	# Handle dash cooldown
+	if not can_dash:
+		dash_timer -= delta
+		if dash_timer <= 0:
+			can_dash = true
+			# Visual feedback that dash is ready
+			modulate = Color(1.1, 1.1, 1.2, 1.0)
+			var tween = create_tween()
+			tween.tween_property(self, "modulate", Color.WHITE, 0.2)
+	
+	# Check for dash input
+	if Input.is_action_just_pressed("dash") and can_dash and not is_dashing:
+		start_dash()
+	
+	# Handle dash movement
+	if is_dashing:
+		velocity = dash_direction * dash_speed
+		move_and_slide()
+	else:
+		movement()
 	
 	# Regeneration
 	if regen > 0 and hp < maxhp:
@@ -186,6 +217,45 @@ func _physics_process(delta):
 		update_lightning(delta)
 	if magicmissile_level > 0:
 		update_magicmissile(delta)
+
+func start_dash():
+	is_dashing = true
+	can_dash = false
+	dash_timer = dash_cooldown
+	
+	# Dash in last movement direction or facing direction
+	var x_mov = Input.get_action_strength("right") - Input.get_action_strength("left")
+	var y_mov = Input.get_action_strength("down") - Input.get_action_strength("up")
+	var input_dir = Vector2(x_mov, y_mov)
+	
+	if input_dir != Vector2.ZERO:
+		dash_direction = input_dir.normalized()
+	else:
+		dash_direction = last_movement.normalized()
+	
+	# Visual effect - ghost trail
+	modulate = Color(1.5, 1.5, 2.0, 0.8)
+	
+	# Spawn trail sprites
+	for i in range(3):
+		var trail = Sprite2D.new()
+		trail.texture = sprite.texture
+		trail.hframes = sprite.hframes
+		trail.frame = sprite.frame
+		trail.flip_h = sprite.flip_h
+		trail.global_position = global_position
+		trail.modulate = Color(0.5, 0.7, 1.0, 0.6)
+		get_parent().add_child(trail)
+		
+		# Fade out trail
+		var tween = trail.create_tween()
+		tween.tween_property(trail, "modulate:a", 0.0, 0.3)
+		tween.tween_callback(trail.queue_free)
+	
+	# End dash after duration
+	await get_tree().create_timer(dash_duration).timeout
+	is_dashing = false
+	modulate = Color.WHITE
 
 func movement():
 	var x_mov = Input.get_action_strength("right") - Input.get_action_strength("left")
@@ -222,6 +292,10 @@ func attack():
 	# Holy Cross, Fire Ring, and Lightning are updated in _physics_process
 
 func _on_hurt_box_hurt(damage, _angle, _knockback):
+	# Invincible during dash
+	if is_dashing:
+		return
+	
 	var actual_damage = clamp(damage-armor, 1.0, 999.0)
 	hp -= actual_damage
 	healthBar.max_value = maxhp
@@ -233,10 +307,10 @@ func _on_hurt_box_hurt(damage, _angle, _knockback):
 		var shake_intensity = clamp(actual_damage * 1.5, 3.0, 10.0)
 		camera.shake(shake_intensity, 0.8)
 	
-	# Flash red on damage
-	modulate = Color(1.5, 0.5, 0.5, 1.0)
+	# Flash darker red/purple on damage - distinct from attack effects
+	modulate = Color(1.0, 0.3, 0.4, 1.0)
 	var tween = create_tween()
-	tween.tween_property(self, "modulate", Color.WHITE, 0.15)
+	tween.tween_property(self, "modulate", Color.WHITE, 0.2)
 	
 	if hp <= 0:
 		death()
@@ -641,6 +715,15 @@ func show_evolution_message(weapon_name: String):
 	tween.tween_property(self, "modulate", Color.WHITE, 0.5)
 	
 func get_random_item():
+	# Count current unique weapons
+	var current_weapons = []
+	for upgrade in collected_upgrades:
+		if UpgradeDb.UPGRADES.has(upgrade) and UpgradeDb.UPGRADES[upgrade]["type"] == "weapon":
+			var base_name = upgrade.rstrip("0123456789")
+			if not base_name in current_weapons:
+				current_weapons.append(base_name)
+	var at_weapon_limit = current_weapons.size() >= MAX_WEAPON_SLOTS
+	
 	var dblist = []
 	for i in UpgradeDb.UPGRADES:
 		if i in collected_upgrades: #Find already collected upgrades
@@ -649,6 +732,23 @@ func get_random_item():
 			pass
 		elif UpgradeDb.UPGRADES[i]["type"] == "item": #Don't pick food
 			pass
+		elif UpgradeDb.UPGRADES[i]["type"] == "weapon":
+			# Check if this is a new weapon or upgrade to existing
+			var base_name = i.rstrip("0123456789")
+			var is_new_weapon = not base_name in current_weapons
+			
+			# Block new weapons if at limit
+			if at_weapon_limit and is_new_weapon:
+				pass  # Skip new weapons
+			elif UpgradeDb.UPGRADES[i]["prerequisite"].size() > 0:
+				var to_add = true
+				for n in UpgradeDb.UPGRADES[i]["prerequisite"]:
+					if not n in collected_upgrades:
+						to_add = false
+				if to_add:
+					dblist.append(i)
+			else:
+				dblist.append(i)
 		elif UpgradeDb.UPGRADES[i]["prerequisite"].size() > 0: #Check for PreRequisites
 			var to_add = true
 			for n in UpgradeDb.UPGRADES[i]["prerequisite"]:
