@@ -25,12 +25,16 @@ var divineWrath = preload("res://Player/Attack/divine_wrath.tscn")
 var infernoAura = preload("res://Player/Attack/inferno_aura.tscn")
 var stormCaller = preload("res://Player/Attack/storm_caller.tscn")
 var arcaneBarrage = preload("res://Player/Attack/arcane_barrage.tscn")
+var frostNova = preload("res://Player/Attack/frost_nova.tscn")
+var maelstrom = preload("res://Player/Attack/maelstrom.tscn")
 
 # Evolution flags
 var holycross_evolved := false
 var firering_evolved := false
 var lightning_evolved := false
 var magicmissile_evolved := false
+var icespear_evolved := false
+var tornado_evolved := false
 
 #AttackNodes
 @onready var iceSpearTimer = get_node("%IceSpearTimer")
@@ -244,10 +248,15 @@ func _on_ice_spear_timer_timeout():
 
 func _on_ice_spear_attack_timer_timeout():
 	if icespear_ammo > 0:
-		var icespear_attack = iceSpear.instantiate()
+		var icespear_attack
+		# Use evolved version if applicable
+		if icespear_evolved:
+			icespear_attack = frostNova.instantiate()
+		else:
+			icespear_attack = iceSpear.instantiate()
+			icespear_attack.level = icespear_level
 		icespear_attack.position = position
 		icespear_attack.target = get_random_target()
-		icespear_attack.level = icespear_level
 		add_child(icespear_attack)
 		icespear_ammo -= 1
 		if icespear_ammo > 0:
@@ -261,10 +270,15 @@ func _on_tornado_timer_timeout():
 
 func _on_tornado_attack_timer_timeout():
 	if tornado_ammo > 0:
-		var tornado_attack = tornado.instantiate()
+		var tornado_attack
+		# Use evolved version if applicable
+		if tornado_evolved:
+			tornado_attack = maelstrom.instantiate()
+		else:
+			tornado_attack = tornado.instantiate()
+			tornado_attack.level = tornado_level
 		tornado_attack.position = position
 		tornado_attack.last_movement = last_movement
-		tornado_attack.level = tornado_level
 		add_child(tornado_attack)
 		tornado_ammo -= 1
 		if tornado_ammo > 0:
@@ -601,6 +615,16 @@ func check_evolutions():
 	if not magicmissile_evolved and magicmissile_level >= 4 and "luck4" in collected_upgrades:
 		magicmissile_evolved = true
 		show_evolution_message("Arcane Barrage")
+	
+	# Ice Spear + Tome4 = Frost Nova
+	if not icespear_evolved and icespear_level >= 4 and "tome4" in collected_upgrades:
+		icespear_evolved = true
+		show_evolution_message("Frost Nova")
+	
+	# Tornado + Scroll4 = Maelstrom
+	if not tornado_evolved and tornado_level >= 4 and "scroll4" in collected_upgrades:
+		tornado_evolved = true
+		show_evolution_message("Maelstrom")
 
 func show_evolution_message(weapon_name: String):
 	# Display evolution notification

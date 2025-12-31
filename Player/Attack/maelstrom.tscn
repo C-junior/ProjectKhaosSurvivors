@@ -1,0 +1,35 @@
+[gd_scene load_steps=4 format=3 uid="uid://cmaelstrom001"]
+
+[ext_resource type="Texture2D" uid="uid://c5y0r4crcqjdp" path="res://Textures/Items/Weapons/tornado.png" id="1_texture"]
+[ext_resource type="Script" path="res://Player/Attack/maelstrom.gd" id="2_maelstrom"]
+[ext_resource type="AudioStream" uid="uid://r7omweq2u12i" path="res://Audio/SoundEffect/tornado.ogg" id="3_audio"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_mael"]
+radius = 25.0
+
+[node name="Maelstrom" type="Area2D" groups=["attack"]]
+top_level = true
+scale = Vector2(0.1, 0.1)
+collision_layer = 4
+collision_mask = 0
+script = ExtResource("2_maelstrom")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+modulate = Color(0.8, 0.5, 1.0, 1)
+scale = Vector2(1.5, 1.5)
+texture = ExtResource("1_texture")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_mael")
+
+[node name="Timer" type="Timer" parent="."]
+wait_time = 25.0
+autostart = true
+
+[node name="snd_attack" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("3_audio")
+volume_db = 3.0
+pitch_scale = 0.8
+autoplay = true
+
+[connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]

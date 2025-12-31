@@ -1,7 +1,8 @@
-[gd_scene load_steps=21 format=3 uid="uid://du6qbgqucaqov"]
+[gd_scene load_steps=22 format=3 uid="uid://du6qbgqucaqov"]
 
 [ext_resource type="Texture2D" uid="uid://b6umklllf2jsl" path="res://Textures/dirt_full_new.png" id="1_3v41d"]
 [ext_resource type="PackedScene" uid="uid://dncgepmkc4jf4" path="res://Player/player.tscn" id="2_40uwv"]
+[ext_resource type="Texture2D" uid="uid://d2qj2p1h00fyw" path="res://Textures/map/field-map-1.png" id="2_h2aik"]
 [ext_resource type="PackedScene" uid="uid://ba2claihwes2y" path="res://Utility/enemy_spawner.tscn" id="3_p01g4"]
 [ext_resource type="PackedScene" uid="uid://gvm5jcbbgwdv" path="res://Enemy/enemy_kobold_weak.tscn" id="4_ee8bm"]
 [ext_resource type="Script" uid="uid://c5dsqp1y0ujb4" path="res://Utility/spawn_info.gd" id="5_jj7s8"]
@@ -23,7 +24,7 @@ enemy_spawn_delay = 0
 [sub_resource type="Resource" id="Resource_ij20a"]
 script = ExtResource("5_jj7s8")
 time_start = 30
-time_end = 600
+time_end = 120
 enemy = ExtResource("4_ee8bm")
 enemy_num = 2
 enemy_spawn_delay = 0
@@ -31,50 +32,50 @@ enemy_spawn_delay = 0
 [sub_resource type="Resource" id="Resource_68oxv"]
 script = ExtResource("5_jj7s8")
 time_start = 60
-time_end = 180
+time_end = 240
 enemy = ExtResource("6_rumbx")
 enemy_num = 1
 enemy_spawn_delay = 1
 
 [sub_resource type="Resource" id="Resource_l8y0x"]
 script = ExtResource("5_jj7s8")
-time_start = 180
-time_end = 210
-enemy = ExtResource("7_unri0")
-enemy_num = 1
-enemy_spawn_delay = 2
-
-[sub_resource type="Resource" id="Resource_daq1w"]
-script = ExtResource("5_jj7s8")
-time_start = 210
-time_end = 240
+time_start = 120
+time_end = 300
 enemy = ExtResource("6_rumbx")
 enemy_num = 2
 enemy_spawn_delay = 0
 
+[sub_resource type="Resource" id="Resource_daq1w"]
+script = ExtResource("5_jj7s8")
+time_start = 150
+time_end = 400
+enemy = ExtResource("7_unri0")
+enemy_num = 1
+enemy_spawn_delay = 2
+
 [sub_resource type="Resource" id="Resource_0gpiy"]
 script = ExtResource("5_jj7s8")
 time_start = 240
-time_end = 270
+time_end = 600
 enemy = ExtResource("7_unri0")
-enemy_num = 1
-enemy_spawn_delay = 0
+enemy_num = 2
+enemy_spawn_delay = 1
 
 [sub_resource type="Resource" id="Resource_4teun"]
 script = ExtResource("5_jj7s8")
-time_start = 240
-time_end = 240
+time_start = 300
+time_end = 600
 enemy = ExtResource("8_ltymd")
 enemy_num = 1
-enemy_spawn_delay = 0
+enemy_spawn_delay = 3
 
 [sub_resource type="Resource" id="Resource_rx6id"]
 script = ExtResource("5_jj7s8")
-time_start = 270
+time_start = 400
 time_end = 600
-enemy = ExtResource("6_rumbx")
-enemy_num = 4
-enemy_spawn_delay = 0
+enemy = ExtResource("8_ltymd")
+enemy_num = 2
+enemy_spawn_delay = 2
 
 [sub_resource type="Resource" id="Resource_t2np8"]
 script = ExtResource("5_jj7s8")
@@ -92,6 +93,11 @@ texture_repeat = 2
 texture = ExtResource("1_3v41d")
 region_enabled = true
 region_rect = Rect2(-4000, -4000, 4000, 4000)
+
+[node name="Field-map-1" type="Sprite2D" parent="."]
+position = Vector2(400.71, 216.5)
+scale = Vector2(0.533125, 0.533125)
+texture = ExtResource("2_h2aik")
 
 [node name="Player" parent="." instance=ExtResource("2_40uwv")]
 
