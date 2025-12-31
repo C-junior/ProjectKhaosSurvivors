@@ -1,8 +1,7 @@
-[gd_scene load_steps=22 format=3 uid="uid://du6qbgqucaqov"]
+[gd_scene load_steps=24 format=3 uid="uid://du6qbgqucaqov"]
 
 [ext_resource type="Texture2D" uid="uid://b6umklllf2jsl" path="res://Textures/dirt_full_new.png" id="1_3v41d"]
 [ext_resource type="PackedScene" uid="uid://dncgepmkc4jf4" path="res://Player/player.tscn" id="2_40uwv"]
-[ext_resource type="Texture2D" uid="uid://d2qj2p1h00fyw" path="res://Textures/map/field-map-1.png" id="2_h2aik"]
 [ext_resource type="PackedScene" uid="uid://ba2claihwes2y" path="res://Utility/enemy_spawner.tscn" id="3_p01g4"]
 [ext_resource type="PackedScene" uid="uid://gvm5jcbbgwdv" path="res://Enemy/enemy_kobold_weak.tscn" id="4_ee8bm"]
 [ext_resource type="Script" uid="uid://c5dsqp1y0ujb4" path="res://Utility/spawn_info.gd" id="5_jj7s8"]
@@ -12,6 +11,9 @@
 [ext_resource type="PackedScene" uid="uid://btf7clk4jja87" path="res://Enemy/enemy_super.tscn" id="9_xs42h"]
 [ext_resource type="AudioStream" uid="uid://bbufl4r1ou1rw" path="res://Audio/Music/battleThemeA.mp3" id="10_rk3we"]
 [ext_resource type="Script" uid="uid://b2o4p2c81m0pw" path="res://Audio/Music/snd_Music.gd" id="11_ovtx6"]
+[ext_resource type="PackedScene" uid="uid://dkvpoispawner" path="res://Utility/poi_spawner.tscn" id="12_poi"]
+[ext_resource type="PackedScene" uid="uid://cpoindicator" path="res://Player/GUI/poi_indicator.tscn" id="13_poiind"]
+[ext_resource type="Texture2D" uid="uid://dot8rbr1miig3" path="res://Textures/map/field-map1.png" id="14_awrha"]
 
 [sub_resource type="Resource" id="Resource_03m25"]
 script = ExtResource("5_jj7s8")
@@ -94,15 +96,18 @@ texture = ExtResource("1_3v41d")
 region_enabled = true
 region_rect = Rect2(-4000, -4000, 4000, 4000)
 
-[node name="Field-map-1" type="Sprite2D" parent="."]
-position = Vector2(400.71, 216.5)
-scale = Vector2(0.533125, 0.533125)
-texture = ExtResource("2_h2aik")
+[node name="Field-map1" type="Sprite2D" parent="."]
+position = Vector2(235, 310)
+texture = ExtResource("14_awrha")
 
 [node name="Player" parent="." instance=ExtResource("2_40uwv")]
 
 [node name="EnemySpawner" parent="." instance=ExtResource("3_p01g4")]
 spawns = Array[ExtResource("5_jj7s8")]([SubResource("Resource_03m25"), SubResource("Resource_ij20a"), SubResource("Resource_68oxv"), SubResource("Resource_l8y0x"), SubResource("Resource_daq1w"), SubResource("Resource_0gpiy"), SubResource("Resource_4teun"), SubResource("Resource_rx6id"), SubResource("Resource_t2np8")])
+
+[node name="POISpawner" parent="." instance=ExtResource("12_poi")]
+
+[node name="POIIndicator" parent="." instance=ExtResource("13_poiind")]
 
 [node name="Loot" type="Node2D" parent="." groups=["loot"]]
 

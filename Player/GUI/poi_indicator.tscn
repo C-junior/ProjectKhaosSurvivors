@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://cpoindicator"]
+
+[ext_resource type="Script" path="res://Player/GUI/poi_indicator.gd" id="1_indicator"]
+
+[node name="POIIndicator" type="CanvasLayer"]
+layer = 10
+script = ExtResource("1_indicator")
