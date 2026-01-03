@@ -22,8 +22,8 @@ GameManager="*res://Autoload/game_manager.gd"
 
 [display]
 
-window/size/viewport_width=640
-window/size/viewport_height=360
+window/size/viewport_width=1280
+window/size/viewport_height=720
 window/size/mode=3
 window/size/borderless=true
 window/size/window_width_override=1280

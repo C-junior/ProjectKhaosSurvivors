@@ -43,6 +43,7 @@ hframes = 4
 vframes = 2
 
 [node name="Camera2D" type="Camera2D" parent="."]
+zoom = Vector2(0.5, 0.5)
 script = ExtResource("3_gu6f8")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
@@ -111,14 +112,15 @@ shape = SubResource("CircleShape2D_6vwp8")
 [node name="GUI" type="Control" parent="GUILayer"]
 layout_mode = 3
 anchors_preset = 0
-offset_right = 640.0
-offset_bottom = 360.0
+offset_right = 1280.0
+offset_bottom = 720.0
 
 [node name="ExperienceBar" type="TextureProgressBar" parent="GUILayer/GUI"]
 unique_name_in_owner = true
 layout_mode = 0
-offset_right = 640.0
+offset_right = 1280.0
 offset_bottom = 40.0
+scale = Vector2(2, 1)
 texture_under = ExtResource("4_pbpj5")
 texture_progress = ExtResource("5_5ive2")
 
@@ -127,9 +129,9 @@ unique_name_in_owner = true
 layout_mode = 0
 offset_left = 540.0
 offset_right = 640.0
-offset_bottom = 20.0
+offset_bottom = 40.0
 theme_override_fonts/font = ExtResource("6_okx7u")
-theme_override_font_sizes/font_size = 16
+theme_override_font_sizes/font_size = 24
 text = "Level: 1"
 horizontal_alignment = 1
 vertical_alignment = 2
@@ -138,10 +140,11 @@ vertical_alignment = 2
 unique_name_in_owner = true
 self_modulate = Color(1, 1, 1, 0.392157)
 layout_mode = 0
-offset_left = 304.0
-offset_top = 200.0
-offset_right = 336.0
-offset_bottom = 208.0
+offset_left = 608.0
+offset_top = 400.0
+offset_right = 672.0
+offset_bottom = 416.0
+scale = Vector2(2, 2)
 value = 50.0
 texture_over = ExtResource("8_flesq")
 texture_progress = ExtResource("9_uker1")
@@ -151,16 +154,17 @@ unique_name_in_owner = true
 process_mode = 2
 visible = false
 layout_mode = 0
-offset_left = 800.0
-offset_top = 50.0
-offset_right = 1000.0
-offset_bottom = 300.0
+offset_left = 40.0
+offset_top = 100.0
+offset_right = 440.0
+offset_bottom = 600.0
 
 [node name="lbl_LevelUP" type="Label" parent="GUILayer/GUI/LevelUp"]
 layout_mode = 0
-offset_right = 200.0
-offset_bottom = 50.0
+offset_right = 400.0
+offset_bottom = 80.0
 theme_override_fonts/font = ExtResource("6_okx7u")
+theme_override_font_sizes/font_size = 32
 text = "Level Up !"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -168,10 +172,10 @@ vertical_alignment = 1
 [node name="UpgradeOptions" type="VBoxContainer" parent="GUILayer/GUI/LevelUp"]
 unique_name_in_owner = true
 layout_mode = 0
-offset_left = 10.0
-offset_top = 50.0
-offset_right = 190.0
-offset_bottom = 100.0
+offset_left = 20.0
+offset_top = 80.0
+offset_right = 380.0
+offset_bottom = 480.0
 
 [node name="snd_levelup" type="AudioStreamPlayer" parent="GUILayer/GUI/LevelUp"]
 unique_name_in_owner = true
@@ -183,17 +187,18 @@ unique_name_in_owner = true
 process_mode = 2
 visible = false
 layout_mode = 0
-offset_left = 230.0
-offset_top = -266.0
-offset_right = 430.0
-offset_bottom = -16.0
+offset_left = 440.0
+offset_top = -532.0
+offset_right = 840.0
+offset_bottom = -32.0
 
 [node name="lbl_Result" type="Label" parent="GUILayer/GUI/DeathPanel"]
 unique_name_in_owner = true
 layout_mode = 0
-offset_right = 200.0
-offset_bottom = 50.0
+offset_right = 400.0
+offset_bottom = 100.0
 theme_override_fonts/font = ExtResource("6_okx7u")
+theme_override_font_sizes/font_size = 32
 text = "Result"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -210,21 +215,21 @@ volume_db = -10.0
 
 [node name="btn_menu" parent="GUILayer/GUI/DeathPanel" instance=ExtResource("12_i8esf")]
 layout_mode = 0
-offset_left = 60.0
-offset_top = 200.0
-offset_right = 140.0
-offset_bottom = 230.0
+offset_left = 120.0
+offset_top = 400.0
+offset_right = 280.0
+offset_bottom = 460.0
 text = "Menu"
 
 [node name="lblTimer" type="Label" parent="GUILayer/GUI"]
 unique_name_in_owner = true
 layout_mode = 0
-offset_left = 280.0
-offset_top = 20.0
-offset_right = 360.0
-offset_bottom = 44.0
+offset_left = 560.0
+offset_top = 40.0
+offset_right = 720.0
+offset_bottom = 88.0
 theme_override_fonts/font = ExtResource("6_okx7u")
-theme_override_font_sizes/font_size = 20
+theme_override_font_sizes/font_size = 32
 text = "00:00"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -232,19 +237,19 @@ vertical_alignment = 1
 [node name="CollectedWeapons" type="GridContainer" parent="GUILayer/GUI"]
 unique_name_in_owner = true
 layout_mode = 0
-offset_left = 8.0
-offset_top = 24.0
-offset_right = 208.0
-offset_bottom = 40.0
+offset_left = 16.0
+offset_top = 48.0
+offset_right = 416.0
+offset_bottom = 80.0
 columns = 10
 
 [node name="CollectedUpgrades" type="GridContainer" parent="GUILayer/GUI"]
 unique_name_in_owner = true
 layout_mode = 0
-offset_left = 8.0
-offset_top = 40.0
-offset_right = 208.0
-offset_bottom = 56.0
+offset_left = 16.0
+offset_top = 80.0
+offset_right = 416.0
+offset_bottom = 112.0
 columns = 10
 
 [node name="KillCounter" parent="GUILayer/GUI" instance=ExtResource("4_p5o4e")]

@@ -15,42 +15,42 @@ script = ExtResource("1_oi0p3")
 
 [node name="ColorRect" type="ColorRect" parent="."]
 layout_mode = 0
-offset_right = 673.0
-offset_bottom = 382.0
+offset_right = 1280.0
+offset_bottom = 720.0
 color = Color(0.572549, 0.207843, 0.168627, 1)
 
 [node name="Label" type="Label" parent="."]
 layout_mode = 0
-offset_right = 640.0
-offset_bottom = 100.0
+offset_right = 1280.0
+offset_bottom = 200.0
 theme_override_fonts/font = ExtResource("1_xdjxl")
-theme_override_font_sizes/font_size = 72
+theme_override_font_sizes/font_size = 96
 text = "Survivors Clone #13247"
 horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="btn_play" parent="." instance=ExtResource("3_kwsdd")]
 layout_mode = 0
-offset_left = 280.0
-offset_top = 250.0
-offset_right = 360.0
-offset_bottom = 280.0
+offset_left = 540.0
+offset_top = 500.0
+offset_right = 740.0
+offset_bottom = 560.0
 text = "Play"
 
 [node name="btn_exit" parent="." instance=ExtResource("3_kwsdd")]
 layout_mode = 0
-offset_left = 280.0
-offset_top = 290.0
-offset_right = 360.0
-offset_bottom = 320.0
+offset_left = 540.0
+offset_top = 580.0
+offset_right = 740.0
+offset_bottom = 640.0
 text = "Exit"
 
 [node name="btn_shop" type="Button" parent="."]
 layout_mode = 0
-offset_left = 280.0
-offset_top = 209.0
-offset_right = 359.0
-offset_bottom = 240.0
+offset_left = 540.0
+offset_top = 420.0
+offset_right = 740.0
+offset_bottom = 480.0
 text = "Shop"
 
 [connection signal="click_end" from="btn_play" to="." method="_on_btn_play_click_end"]

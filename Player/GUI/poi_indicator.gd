@@ -37,13 +37,20 @@ func _ready():
 	_setup_announcement_label()
 
 func _setup_announcement_label():
+	# Create a full-screen Control container for proper anchoring
+	var container = Control.new()
+	container.set_anchors_preset(Control.PRESET_FULL_RECT)
+	container.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(container)
+	
+	# Create the label
 	announcement_label = Label.new()
 	announcement_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	announcement_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	announcement_label.add_theme_font_size_override("font_size", 20)
+	announcement_label.add_theme_font_size_override("font_size", 32)
 	announcement_label.add_theme_color_override("font_color", Color(1.0, 0.9, 0.3, 1.0))
 	announcement_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))
-	announcement_label.add_theme_constant_override("outline_size", 5)
+	announcement_label.add_theme_constant_override("outline_size", 6)
 	
 	# Use anchors to center horizontally at top of screen
 	announcement_label.anchor_left = 0.0
@@ -52,11 +59,11 @@ func _setup_announcement_label():
 	announcement_label.anchor_bottom = 0.0
 	announcement_label.offset_left = 0
 	announcement_label.offset_right = 0
-	announcement_label.offset_top = 50
-	announcement_label.offset_bottom = 90
+	announcement_label.offset_top = 80
+	announcement_label.offset_bottom = 130
 	announcement_label.visible = false
 	
-	add_child(announcement_label)
+	container.add_child(announcement_label)
 	print("[POI Indicator] Announcement label created")
 
 func _process(_delta: float):
