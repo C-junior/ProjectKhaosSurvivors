@@ -3,9 +3,9 @@ extends Node2D
 ## POI Spawner - Manages spawning of Points of Interest during gameplay
 
 # Spawn configuration
-@export var first_spawn_time: float = 45.0  ## Seconds before first POI spawns
-@export var spawn_interval_min: float = 45.0  ## Minimum seconds between spawns
-@export var spawn_interval_max: float = 75.0  ## Maximum seconds between spawns
+@export var first_spawn_time: float = 10.0  ## Seconds before first POI spawns (was 45)
+@export var spawn_interval_min: float = 30.0  ## Minimum seconds between spawns
+@export var spawn_interval_max: float = 60.0  ## Maximum seconds between spawns
 @export var max_active_pois: int = 2  ## Maximum POIs active at once
 @export var spawn_distance_min: float = 150.0  ## Minimum distance from player
 @export var spawn_distance_max: float = 300.0  ## Maximum distance from player

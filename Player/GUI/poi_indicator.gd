@@ -8,9 +8,16 @@ extends CanvasLayer
 # Arrow indicators for each active POI
 var arrows: Dictionary = {}  # poi node -> arrow sprite
 
-# Announcement label
+# Announcement UI elements
 var announcement_label: Label = null
+var description_label: Label = null
+var quest_label: Label = null
+var reward_label: Label = null
+var announcement_container: VBoxContainer = null
 var announcement_tween: Tween = null
+
+# Quest tracker HUD
+var quest_tracker: QuestTracker = null
 
 # Arrow settings
 const ARROW_MARGIN: float = 50.0  # Distance from screen edge
@@ -35,6 +42,15 @@ func _ready():
 	
 	# Create announcement label
 	_setup_announcement_label()
+	
+	# Create quest tracker HUD
+	_setup_quest_tracker()
+
+func _setup_quest_tracker():
+	quest_tracker = QuestTracker.new()
+	quest_tracker.name = "QuestTracker"
+	get_tree().root.call_deferred("add_child", quest_tracker)
+	print("[POI Indicator] Quest tracker created")
 
 func _setup_announcement_label():
 	# Create a full-screen Control container for proper anchoring
@@ -43,28 +59,60 @@ func _setup_announcement_label():
 	container.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(container)
 	
-	# Create the label
+	# Create a VBox for multi-line announcements
+	var vbox = VBoxContainer.new()
+	vbox.anchor_left = 0.1
+	vbox.anchor_right = 0.9
+	vbox.anchor_top = 0.0
+	vbox.anchor_bottom = 0.0
+	vbox.offset_top = 60
+	vbox.offset_bottom = 200
+	vbox.add_theme_constant_override("separation", 8)
+	vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	container.add_child(vbox)
+	
+	# Title label (main announcement)
 	announcement_label = Label.new()
 	announcement_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	announcement_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	announcement_label.add_theme_font_size_override("font_size", 32)
-	announcement_label.add_theme_color_override("font_color", Color(1.0, 0.9, 0.3, 1.0))
+	announcement_label.add_theme_font_size_override("font_size", 28)
+	announcement_label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.2, 1.0))  # Golden
 	announcement_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))
-	announcement_label.add_theme_constant_override("outline_size", 6)
+	announcement_label.add_theme_constant_override("outline_size", 5)
+	vbox.add_child(announcement_label)
 	
-	# Use anchors to center horizontally at top of screen
-	announcement_label.anchor_left = 0.0
-	announcement_label.anchor_right = 1.0
-	announcement_label.anchor_top = 0.0
-	announcement_label.anchor_bottom = 0.0
-	announcement_label.offset_left = 0
-	announcement_label.offset_right = 0
-	announcement_label.offset_top = 80
-	announcement_label.offset_bottom = 130
-	announcement_label.visible = false
+	# Description label (visual flavor)
+	description_label = Label.new()
+	description_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	description_label.add_theme_font_size_override("font_size", 16)
+	description_label.add_theme_color_override("font_color", Color(0.9, 0.9, 1.0, 0.9))  # Light blue-white
+	description_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))
+	description_label.add_theme_constant_override("outline_size", 3)
+	description_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	vbox.add_child(description_label)
 	
-	container.add_child(announcement_label)
-	print("[POI Indicator] Announcement label created")
+	# Quest objective label
+	quest_label = Label.new()
+	quest_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	quest_label.add_theme_font_size_override("font_size", 22)
+	quest_label.add_theme_color_override("font_color", Color(0.4, 1.0, 0.4, 1.0))  # Green
+	quest_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))
+	quest_label.add_theme_constant_override("outline_size", 4)
+	vbox.add_child(quest_label)
+	
+	# Reward label
+	reward_label = Label.new()
+	reward_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	reward_label.add_theme_font_size_override("font_size", 20)
+	reward_label.add_theme_color_override("font_color", Color(1.0, 0.7, 0.2, 1.0))  # Orange-gold
+	reward_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))
+	reward_label.add_theme_constant_override("outline_size", 4)
+	vbox.add_child(reward_label)
+	
+	# Store vbox reference for visibility control
+	announcement_container = vbox
+	announcement_container.visible = false
+	
+	print("[POI Indicator] Announcement panel created")
 
 func _process(_delta: float):
 	if not player:
@@ -151,13 +199,23 @@ func _on_poi_spawned(poi: Node):
 	arrows[poi] = arrow
 	add_child(arrow)
 	
-	# Show announcement
-	_show_announcement("⚔️ CHALLENGE SHRINE APPEARED! ⚔️")
+	# Connect to POI activation to start quest tracking
+	if poi.has_signal("poi_activated"):
+		poi.poi_activated.connect(_on_poi_activated)
+	
+	# Show detailed announcement with POI data
+	_show_poi_announcement(poi)
 	
 	# Screen shake
 	var camera = get_viewport().get_camera_2d()
 	if camera and camera.has_method("shake"):
 		camera.shake(4.0, 0.5)
+
+func _on_poi_activated(poi: Node):
+	# Start quest tracker when player activates a POI
+	if quest_tracker:
+		quest_tracker.start_tracking(poi)
+		print("[POI Indicator] Quest tracking started for: ", poi.name)
 
 func _on_poi_removed(poi: Node):
 	if arrows.has(poi):
@@ -199,21 +257,35 @@ func _create_arrow() -> Node2D:
 	
 	return arrow
 
-func _show_announcement(text: String):
-	if not announcement_label:
+func _show_poi_announcement(poi: Node):
+	if not announcement_container:
 		return
 	
-	announcement_label.text = text
-	announcement_label.visible = true
-	announcement_label.modulate = Color(1, 1, 1, 0)
+	# Get POI data
+	var poi_name = poi.poi_name if poi.get("poi_name") else "Point of Interest"
+	var poi_desc = poi.poi_description if poi.get("poi_description") else ""
+	var quest_desc = poi.get_quest_description() if poi.has_method("get_quest_description") else ""
+	var reward_desc = poi.get_reward_type_name() if poi.has_method("get_reward_type_name") else ""
+	
+	# Set label texts
+	announcement_label.text = "⚔️ %s APPEARED! ⚔️" % poi_name.to_upper()
+	description_label.text = poi_desc
+	quest_label.text = quest_desc
+	reward_label.text = "🎁 Reward: %s" % reward_desc if reward_desc else ""
+	
+	# Show container
+	announcement_container.visible = true
+	announcement_container.modulate = Color(1, 1, 1, 0)
 	
 	# Cancel previous tween
 	if announcement_tween and announcement_tween.is_valid():
 		announcement_tween.kill()
 	
-	# Animate in, hold, animate out
+	# Animate in with slight scale effect, hold longer, animate out
 	announcement_tween = create_tween()
-	announcement_tween.tween_property(announcement_label, "modulate:a", 1.0, 0.3)
-	announcement_tween.tween_interval(2.5)
-	announcement_tween.tween_property(announcement_label, "modulate:a", 0.0, 0.5)
-	announcement_tween.tween_callback(func(): announcement_label.visible = false)
+	announcement_tween.tween_property(announcement_container, "modulate:a", 1.0, 0.4).set_trans(Tween.TRANS_BACK)
+	announcement_tween.tween_interval(4.0)  # Hold for 4 seconds so player can read
+	announcement_tween.tween_property(announcement_container, "modulate:a", 0.0, 0.6)
+	announcement_tween.tween_callback(func(): announcement_container.visible = false)
+	
+	print("[POI Indicator] Announcement: %s | Quest: %s | Reward: %s" % [poi_name, quest_desc, reward_desc])

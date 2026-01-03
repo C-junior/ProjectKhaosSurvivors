@@ -7,11 +7,25 @@ class_name POIBase
 signal poi_activated(poi: POIBase)
 signal poi_completed(poi: POIBase, success: bool)
 signal poi_expired(poi: POIBase)
+signal quest_progress_updated(current: int, target: int, quest_type: String)
+signal quest_time_updated(time_remaining: float, is_in_zone: bool)
 
 # Configuration
 @export var expiration_time: float = 60.0  ## Seconds before POI expires if not engaged
 @export var poi_name: String = "Unknown POI"
 @export var glow_color: Color = Color(0.3, 0.8, 1.0, 1.0)  ## Cyan glow by default
+
+# Announcement display properties
+@export var poi_description: String = "A mysterious point of interest awaits..."
+@export var reward_description: String = "Unknown reward"
+
+## Returns the quest objective text. Override in child classes.
+func get_quest_description() -> String:
+	return "Complete the challenge!"
+
+## Returns the reward type for display purposes. Override in child classes.
+func get_reward_type_name() -> String:
+	return reward_description
 
 # State
 var is_active := false  ## True when player has activated this POI
