@@ -233,29 +233,47 @@ func start_dash():
 	else:
 		dash_direction = last_movement.normalized()
 	
-	# Visual effect - ghost trail
-	modulate = Color(1.5, 1.5, 2.0, 0.8)
+	# Disable collision with enemies during dash (pass through them)
+	var hurtbox = get_node_or_null("HurtBox")
+	if hurtbox:
+		hurtbox.set_deferred("monitoring", false)
+		hurtbox.set_deferred("monitorable", false)
+	
+	# Also disable player's main collision temporarily for phasing
+	var main_collision = get_node_or_null("CollisionShape2D")
+	if main_collision:
+		main_collision.set_deferred("disabled", true)
+	
+	# Visual effect - ghost trail with phasing color
+	modulate = Color(0.5, 0.8, 1.5, 0.6)  # More transparent and blue for phasing
 	
 	# Spawn trail sprites
-	for i in range(3):
+	for i in range(5):  # More trails for longer dash visual
+		await get_tree().create_timer(dash_duration / 5.0).timeout
 		var trail = Sprite2D.new()
 		trail.texture = sprite.texture
 		trail.hframes = sprite.hframes
 		trail.frame = sprite.frame
 		trail.flip_h = sprite.flip_h
+		trail.scale = sprite.scale
 		trail.global_position = global_position
-		trail.modulate = Color(0.5, 0.7, 1.0, 0.6)
+		trail.modulate = Color(0.3, 0.6, 1.0, 0.5)
 		get_parent().add_child(trail)
 		
 		# Fade out trail
 		var tween = trail.create_tween()
-		tween.tween_property(trail, "modulate:a", 0.0, 0.3)
+		tween.tween_property(trail, "modulate:a", 0.0, 0.25)
 		tween.tween_callback(trail.queue_free)
 	
-	# End dash after duration
-	await get_tree().create_timer(dash_duration).timeout
+	# End dash - re-enable collisions
 	is_dashing = false
 	modulate = Color.WHITE
+	
+	if hurtbox:
+		hurtbox.set_deferred("monitoring", true)
+		hurtbox.set_deferred("monitorable", true)
+	if main_collision:
+		main_collision.set_deferred("disabled", false)
 
 func movement():
 	var x_mov = Input.get_action_strength("right") - Input.get_action_strength("left")
