@@ -359,32 +359,32 @@ const UPGRADES = {
 	},
 	"ring1": {
 		"icon": ICON_PATH + "urand_mage.png",
-		"displayname": "Ring",
-		"details": "Your spells now spawn 1 more additional attack",
+		"displayname": "Ring of Power",
+		"details": "All attacks deal 15% more damage",
 		"level": "Level: 1",
 		"prerequisite": [],
 		"type": "upgrade"
 	},
 	"ring2": {
 		"icon": ICON_PATH + "urand_mage.png",
-		"displayname": "Ring",
-		"details": "Your spells now spawn an additional attack",
+		"displayname": "Ring of Power",
+		"details": "All attacks deal an additional 15% more damage",
 		"level": "Level: 2",
 		"prerequisite": ["ring1"],
 		"type": "upgrade"
 	},
 	"ring3": {
 		"icon": ICON_PATH + "urand_mage.png",
-		"displayname": "Ring",
-		"details": "Your spells now spawn an additional attack",
+		"displayname": "Ring of Power",
+		"details": "All attacks deal an additional 15% more damage",
 		"level": "Level: 3",
 		"prerequisite": ["ring2"],
 		"type": "upgrade"
 	},
 	"ring4": {
 		"icon": ICON_PATH + "urand_mage.png",
-		"displayname": "Ring",
-		"details": "Your spells now spawn an additional attack",
+		"displayname": "Ring of Power",
+		"details": "All attacks deal an additional 15% more damage",
 		"level": "Level: 4",
 		"prerequisite": ["ring3"],
 		"type": "upgrade"

@@ -196,15 +196,16 @@ func _disconnect_enemy_signals():
 	if GameManager and GameManager.enemy_killed.is_connected(_on_enemy_killed):
 		GameManager.enemy_killed.disconnect(_on_enemy_killed)
 
-func _on_enemy_killed(_enemy_type: String, position: Vector2):
+func _on_enemy_killed(_enemy_type: String, _position: Vector2):
 	if not challenge_active or challenge_type != ChallengeType.KILL_RUSH:
 		return
 	
-	# Only count kills near the shrine (within larger radius)
-	var kill_radius = zone_radius * 2.5  # 200 units for default 80 radius
-	if global_position.distance_to(position) <= kill_radius:
+	# Count kills only if PLAYER is inside the zone (not where enemy died)
+	# This allows long-range spells to count as long as player stays in zone
+	var kill_zone_radius = zone_radius * 2.5  # 200 units for default 80 radius
+	if player_ref and global_position.distance_to(player_ref.global_position) <= kill_zone_radius:
 		kills_during_challenge += 1
-		print("[Challenge Shrine] Kill counted: %d/%d" % [kills_during_challenge, kill_target])
+		print("[Challenge Shrine] Kill counted: %d/%d (player in zone)" % [kills_during_challenge, kill_target])
 		
 		# Check win condition
 		if kills_during_challenge >= kill_target:

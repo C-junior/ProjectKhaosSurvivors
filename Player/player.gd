@@ -60,6 +60,7 @@ var pickup_radius = 1.0
 var luck = 0.0
 var xp_multiplier = 1.0
 var duplicator_bonus = 0
+var damage_bonus = 0.0  # +15% per level from Duplicator
 var regen = 0.0
 
 #IceSpear
@@ -420,22 +421,32 @@ func update_holycross(delta: float):
 			get_tree().current_scene.add_child(cross)  # Add to scene, not player
 
 func update_firering():
-	if not _firering_spawned:
-		_firering_spawned = true
-		# Spawn fire ring(s) that orbit
-		var count = firering_count + additional_attacks
-		for i in range(count):
-			var ring
-			# Use evolved version if applicable
-			if firering_evolved:
-				ring = infernoAura.instantiate()
-			else:
-				ring = fireRing.instantiate()
-			ring.global_position = global_position
-			if not firering_evolved:
-				ring.level = firering_level
-			ring.orbit_index = i
-			add_child(ring)
+	# Get target ring count (base + additional attacks)
+	var target_count = firering_count + additional_attacks
+	
+	# Get current fire rings
+	var current_rings = []
+	for child in get_children():
+		if child.is_in_group("attack") and child.has_method("update_fire_ring"):
+			current_rings.append(child)
+	
+	var current_count = current_rings.size()
+	
+	# Spawn more rings if needed
+	while current_count < target_count:
+		var ring
+		if firering_evolved:
+			ring = infernoAura.instantiate()
+		else:
+			ring = fireRing.instantiate()
+		ring.global_position = global_position
+		if not firering_evolved:
+			ring.level = firering_level
+		ring.orbit_index = current_count  # Set index for angle offset
+		add_child(ring)
+		current_count += 1
+	
+	# Note: Existing rings handle their own rotation/update via _physics_process
 
 func update_lightning(delta: float):
 	_lightning_timer += delta
@@ -644,7 +655,8 @@ func upgrade_character(upgrade):
 		"scroll1","scroll2","scroll3","scroll4":
 			spell_cooldown += 0.05
 		"ring1","ring2","ring3","ring4":
-			additional_attacks += 1
+			# Ring of Power gives +15% damage per level
+			damage_bonus += 0.15
 		"magnet1","magnet2","magnet3","magnet4":
 			pickup_radius += 0.30
 			# Update grab area scale if it exists
@@ -656,7 +668,7 @@ func upgrade_character(upgrade):
 		"crown1","crown2","crown3","crown4":
 			xp_multiplier += 0.10
 		"duplicator1","duplicator2":
-			# Cap duplicator bonus at +2 to prevent OP stacking with Ring
+			# Duplicator gives +1 extra projectile per level
 			if duplicator_bonus < 2:
 				duplicator_bonus += 1
 				additional_attacks += 1
