@@ -1,7 +1,8 @@
-[gd_scene load_steps=4 format=3 uid="uid://bp02mr41yplsi"]
+[gd_scene load_steps=5 format=3 uid="uid://bp02mr41yplsi"]
 
 [ext_resource type="Script" uid="uid://tblsosbkgqp5" path="res://Player/Attack/arcane_barrage.gd" id="1_barrage"]
 [ext_resource type="Texture2D" uid="uid://bcq2cyxd211e8" path="res://Textures/Items/Weapons/magic-missle.png" id="2_krc85"]
+[ext_resource type="AudioStream" uid="uid://woosh001" path="res://Audio/SoundEffect/woosh.wav" id="3_audio"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_ab1"]
 
@@ -23,5 +24,11 @@ wait_time = 4.0
 one_shot = true
 autostart = true
 
+[node name="snd_attack" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("3_audio")
+volume_db = -15.0
+autoplay = true
+
 [connection signal="body_entered" from="." to="." method="enemy_hit"]
 [connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]
+

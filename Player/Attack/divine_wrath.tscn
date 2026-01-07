@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3 uid="uid://divinewrath001"]
+[gd_scene load_steps=4 format=3 uid="uid://divinewrath001"]
 
 [ext_resource type="Script" path="res://Player/Attack/divine_wrath.gd" id="1_divine"]
 [ext_resource type="Texture2D" uid="uid://dx7xx6vfahxlq" path="res://Textures/GUI/exp_background.png" id="2_sprite"]
+[ext_resource type="AudioStream" uid="uid://woosh001" path="res://Audio/SoundEffect/woosh.wav" id="3_audio"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_dw1"]
 radius = 20.0
@@ -23,5 +24,11 @@ shape = SubResource("CircleShape2D_dw1")
 wait_time = 10.0
 autostart = true
 
+[node name="snd_attack" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("3_audio")
+volume_db = -12.0
+autoplay = true
+
 [connection signal="body_entered" from="." to="." method="enemy_hit"]
 [connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]
+
