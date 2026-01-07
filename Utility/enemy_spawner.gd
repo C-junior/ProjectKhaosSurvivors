@@ -203,8 +203,11 @@ func _on_final_boss_killed():
 func spawn_treasure_at(pos: Vector2, tier: int = 1):
 	var chest = treasure_chest.instantiate()
 	chest.global_position = pos
-	# Tier 1 (elite) = 8 gold, Tier 2 = 16, Tier 3 (boss) = 24
-	chest.gold_amount = 8 * tier
+	# Tier 1 (elite) = 10 gold, Tier 2 = 20, Tier 3 (boss) = 30
+	chest.gold_amount = 10 * tier
+	chest.heal_amount = 15 + (tier * 10)  # 25, 35, 45 HP
+	# Randomize chest type (60% Gold, 25% Heal, 15% Weapon)
+	chest.set_random_type()
 	get_parent().call_deferred("add_child", chest)
 
 func _on_treasure_spawn_triggered(position: Vector2):
