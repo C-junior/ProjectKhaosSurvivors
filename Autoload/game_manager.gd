@@ -12,6 +12,11 @@ signal gold_collected(amount: int)
 signal boss_spawned(boss_type: String)
 signal player_died()
 
+# Evolution system signals
+signal essence_collected(amount: int)
+signal evolution_available(weapon_id: String)
+signal evolution_applied(weapon_id: String, evolution_id: String)
+
 # Run Statistics
 var run_stats = {
 	"kills": 0,
@@ -41,9 +46,11 @@ var current_run = {
 	"level": 1,
 	"experience": 0,
 	"gold": 0,
+	"essence": 0,  # Rare currency for powerful evolutions
 	"time": 0,
 	"weapons": [],
 	"passives": [],
+	"evolved_weapons": [],  # Track which weapons have been evolved
 	"sprite": "res://Textures/Player/player_sprite.png"
 }
 
@@ -84,14 +91,17 @@ func start_new_run(character: String = "mage"):
 		"level": 1,
 		"experience": 0,
 		"gold": 0,
+		"essence": 0,
 		"time": 0,
 		"weapons": [],
-		"passives": []
+		"passives": [],
+		"evolved_weapons": []
 	}
 	run_stats = {
 		"kills": 0,
 		"time": 0,
 		"gold_collected": 0,
+		"essence_collected": 0,
 		"damage_dealt": 0,
 		"damage_taken": 0
 	}
@@ -200,6 +210,66 @@ func add_gold(amount: int):
 	current_run.gold += modified_amount
 	run_stats.gold_collected += modified_amount
 	emit_signal("gold_collected", modified_amount)
+
+func spend_gold(amount: int) -> bool:
+	if current_run.gold >= amount:
+		current_run.gold -= amount
+		return true
+	return false
+
+# --- Essence Management ---
+func add_essence(amount: int = 1):
+	current_run.essence += amount
+	run_stats.essence_collected += amount
+	emit_signal("essence_collected", amount)
+
+func spend_essence(amount: int) -> bool:
+	if current_run.essence >= amount:
+		current_run.essence -= amount
+		return true
+	return false
+
+func get_essence() -> int:
+	return current_run.essence
+
+func get_gold() -> int:
+	return current_run.gold
+
+# --- Evolution Management ---
+func try_evolve_weapon(weapon_id: String, evolution: EvolutionData) -> bool:
+	"""Attempt to evolve a weapon. Returns true if successful."""
+	var weapon_level = get_weapon_level(weapon_id)
+	var passive_level = 0
+	if evolution.requires_passive_id != "":
+		passive_level = get_passive_level(evolution.requires_passive_id)
+	
+	# Check requirements
+	if not evolution.can_evolve(weapon_level, passive_level, current_run.gold, current_run.essence):
+		return false
+	
+	# Spend resources
+	if evolution.cost_gold > 0 and not spend_gold(evolution.cost_gold):
+		return false
+	if evolution.cost_essence > 0 and not spend_essence(evolution.cost_essence):
+		# Refund gold if essence fails
+		add_gold(evolution.cost_gold)
+		return false
+	
+	# Mark weapon as evolved
+	if not weapon_id in current_run.evolved_weapons:
+		current_run.evolved_weapons.append(weapon_id)
+	
+	emit_signal("evolution_applied", weapon_id, evolution.id)
+	return true
+
+func is_weapon_evolved(weapon_id: String) -> bool:
+	return weapon_id in current_run.evolved_weapons
+
+func check_evolution_available(weapon_id: String):
+	"""Check if a weapon is ready for evolution and emit signal."""
+	var weapon_level = get_weapon_level(weapon_id)
+	if weapon_level >= 4 and not is_weapon_evolved(weapon_id):
+		emit_signal("evolution_available", weapon_id)
 
 # --- Stat Modifications ---
 func modify_stat(stat_name: String, value: float):

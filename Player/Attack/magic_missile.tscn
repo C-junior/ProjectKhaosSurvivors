@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://da2jtkw26cva7" path="res://Player/Attack/magic_missile.gd" id="1_missile"]
 [ext_resource type="Texture2D" uid="uid://bcq2cyxd211e8" path="res://Textures/Items/Weapons/magic-missle.png" id="2_llm2v"]
-[ext_resource type="AudioStream" uid="uid://woosh001" path="res://Audio/SoundEffect/woosh.wav" id="3_audio"]
+[ext_resource type="AudioStream" uid="uid://ckro6v281rcab" path="res://Audio/SoundEffect/woosh.wav" id="3_audio"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_mm1"]
 radius = 6.0
@@ -32,4 +32,3 @@ autoplay = true
 
 [connection signal="body_entered" from="." to="." method="enemy_hit"]
 [connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]
-

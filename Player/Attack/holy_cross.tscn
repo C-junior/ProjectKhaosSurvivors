@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://beg0r4ku32s0l" path="res://Player/Attack/holy_cross.gd" id="1_cross"]
 [ext_resource type="Texture2D" uid="uid://dpudost4utm64" path="res://Textures/Items/Weapons/holy-cross.png" id="2_dmd0q"]
-[ext_resource type="AudioStream" uid="uid://woosh001" path="res://Audio/SoundEffect/woosh.wav" id="3_audio"]
+[ext_resource type="AudioStream" uid="uid://ckro6v281rcab" path="res://Audio/SoundEffect/woosh.wav" id="3_audio"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_cross"]
 
@@ -29,4 +29,3 @@ volume_db = -15.0
 autoplay = true
 
 [connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]
-

@@ -541,6 +541,97 @@ const UPGRADES = {
 		"level": "N/A",
 		"prerequisite": [],
 		"type": "item"
+	},
+	# ===== NEW BUILD-DEFINING PASSIVES =====
+	"bloodpact1": {
+		"icon": ICON_PATH + "chunk.png",
+		"displayname": "Blood Pact",
+		"details": "-10% Max HP, +25% damage output",
+		"level": "Level: 1",
+		"prerequisite": [],
+		"type": "upgrade",
+		"passive_type": "risk_reward",
+		"effect": {"max_hp_mult": -0.10, "damage_mult": 0.25}
+	},
+	"overcharge1": {
+		"icon": ICON_PATH + "scroll_old.png",
+		"displayname": "Overcharge",
+		"details": "On kill: -8% cooldowns for 3s (stacks)",
+		"level": "Level: 1",
+		"prerequisite": [],
+		"type": "upgrade",
+		"passive_type": "tempo",
+		"effect": {"on_kill_cooldown_reduction": 0.08, "duration": 3.0}
+	},
+	"overcharge2": {
+		"icon": ICON_PATH + "scroll_old.png",
+		"displayname": "Overcharge",
+		"details": "On kill: -12% cooldowns for 3s (stacks)",
+		"level": "Level: 2",
+		"prerequisite": ["overcharge1"],
+		"type": "upgrade",
+		"passive_type": "tempo",
+		"effect": {"on_kill_cooldown_reduction": 0.12, "duration": 3.0}
+	},
+	"overcharge3": {
+		"icon": ICON_PATH + "scroll_old.png",
+		"displayname": "Overcharge",
+		"details": "On kill: -16% cooldowns for 4s (stacks)",
+		"level": "Level: 3",
+		"prerequisite": ["overcharge2"],
+		"type": "upgrade",
+		"passive_type": "tempo",
+		"effect": {"on_kill_cooldown_reduction": 0.16, "duration": 4.0}
+	},
+	"arcaneecho1": {
+		"icon": ICON_PATH + "urand_mage.png",
+		"displayname": "Arcane Echo",
+		"details": "12% chance on hit to spawn a micro-missile",
+		"level": "Level: 1",
+		"prerequisite": [],
+		"type": "upgrade",
+		"passive_type": "reactive",
+		"effect": {"proc_chance": 0.12, "damage_percent": 0.25}
+	},
+	"arcaneecho2": {
+		"icon": ICON_PATH + "urand_mage.png",
+		"displayname": "Arcane Echo",
+		"details": "16% chance on hit to spawn a micro-missile",
+		"level": "Level: 2",
+		"prerequisite": ["arcaneecho1"],
+		"type": "upgrade",
+		"passive_type": "reactive",
+		"effect": {"proc_chance": 0.16, "damage_percent": 0.30}
+	},
+	"arcaneecho3": {
+		"icon": ICON_PATH + "urand_mage.png",
+		"displayname": "Arcane Echo",
+		"details": "20% chance on hit to spawn a micro-missile",
+		"level": "Level: 3",
+		"prerequisite": ["arcaneecho2"],
+		"type": "upgrade",
+		"passive_type": "reactive",
+		"effect": {"proc_chance": 0.20, "damage_percent": 0.35}
+	},
+	"arcaneecho4": {
+		"icon": ICON_PATH + "urand_mage.png",
+		"displayname": "Arcane Echo",
+		"details": "25% chance on hit to spawn 2 micro-missiles",
+		"level": "Level: 4",
+		"prerequisite": ["arcaneecho3"],
+		"type": "upgrade",
+		"passive_type": "reactive",
+		"effect": {"proc_chance": 0.25, "damage_percent": 0.35, "projectile_count": 2}
+	},
+	"secondwind1": {
+		"icon": ICON_PATH + "chunk.png",
+		"displayname": "Second Wind",
+		"details": "Below 25% HP: Heal 12 HP + 20% resist (60s CD)",
+		"level": "Level: 1",
+		"prerequisite": [],
+		"type": "upgrade",
+		"passive_type": "defensive",
+		"effect": {"hp_threshold": 0.25, "heal_amount": 12, "resist_buff": 0.20, "resist_duration": 5.0, "cooldown": 60.0}
 	}
 }
 

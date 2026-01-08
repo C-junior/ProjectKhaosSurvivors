@@ -55,6 +55,17 @@ func death():
 	# Elite enemies always drop treasure
 	spawn_treasure()
 	
+	# Chance to drop essence based on tier
+	# Tier 1: 2%, Tier 2: 10%, Tier 3 (boss): 100%
+	var essence_chance = 0.02 + (elite_tier - 1) * 0.08
+	if elite_tier >= 3:
+		essence_chance = 1.0
+	
+	if randf() < essence_chance:
+		GameManager.add_essence(1)
+		# Visual feedback - could spawn essence particle here
+		print("[Elite] Dropped 1 Essence!")
+	
 	# Notify GameManager
 	GameManager.register_kill("elite_" + str(elite_tier), global_position, experience)
 	

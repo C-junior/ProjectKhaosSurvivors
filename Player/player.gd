@@ -60,8 +60,25 @@ var pickup_radius = 1.0
 var luck = 0.0
 var xp_multiplier = 1.0
 var duplicator_bonus = 0
-var damage_bonus = 0.0  # +15% per level from Duplicator
+var damage_bonus = 0.0  # +15% per level from Ring of Power
 var regen = 0.0
+
+# New Build-Defining Passives
+var blood_pact_active := false
+var blood_pact_damage_mult := 0.0
+
+var overcharge_level := 0
+var overcharge_cooldown_buff := 0.0
+var overcharge_timer := 0.0
+
+var arcane_echo_level := 0
+var arcane_echo_proc_chance := 0.0
+
+var second_wind_active := false
+var second_wind_used := false
+var second_wind_cooldown := 0.0
+var second_wind_resist_timer := 0.0
+var second_wind_resist_active := false
 
 #IceSpear
 var icespear_ammo = 0
@@ -131,6 +148,14 @@ var dash_direction := Vector2.ZERO
 @onready var sndLose = get_node("%snd_lose")
 @onready var runSummary = $RunSummary
 
+# HUD labels for essence/gold
+@onready var essenceLabel = get_node_or_null("%EssenceLabel")
+@onready var goldLabel = get_node_or_null("%GoldLabel")
+
+# Evolution popup (loaded dynamically)
+var evolution_popup_scene = preload("res://Player/GUI/evolution_popup.tscn")
+var evolution_popup: CanvasLayer = null
+
 #Signal
 signal playerdeath
 
@@ -143,6 +168,20 @@ func _ready():
 		var sprite_texture = load(GameManager.current_run.sprite)
 		if sprite_texture:
 			sprite.texture = sprite_texture
+	
+	# Connect to GameManager signals for HUD updates
+	if GameManager:
+		GameManager.gold_collected.connect(_on_gold_collected)
+		GameManager.essence_collected.connect(_on_essence_collected)
+		GameManager.enemy_killed.connect(_on_game_manager_enemy_killed)
+	
+	# Initialize HUD
+	update_resource_hud()
+	
+	# Create evolution popup instance
+	evolution_popup = evolution_popup_scene.instantiate()
+	add_child(evolution_popup)
+	evolution_popup.evolution_selected.connect(_on_evolution_selected)
 	
 	# Apply character starting weapon from GameManager or default
 	var starting_weapon = "icespear1"
@@ -208,6 +247,24 @@ func _physics_process(delta):
 		hp += regen * delta
 		hp = clamp(hp, 0, maxhp)
 		healthBar.value = hp
+	
+	# Overcharge cooldown buff decay
+	if overcharge_timer > 0:
+		overcharge_timer -= delta
+		if overcharge_timer <= 0:
+			overcharge_cooldown_buff = 0.0
+	
+	# Second Wind cooldown
+	if second_wind_used and second_wind_cooldown > 0:
+		second_wind_cooldown -= delta
+		if second_wind_cooldown <= 0:
+			second_wind_used = false
+	
+	# Second Wind resist timer
+	if second_wind_resist_active:
+		second_wind_resist_timer -= delta
+		if second_wind_resist_timer <= 0:
+			second_wind_resist_active = false
 	
 	# New weapons update every frame
 	if holycross_level > 0:
@@ -316,6 +373,11 @@ func _on_hurt_box_hurt(damage, _angle, _knockback):
 		return
 	
 	var actual_damage = clamp(damage-armor, 1.0, 999.0)
+	
+	# Apply Second Wind damage resistance if active
+	if second_wind_resist_active:
+		actual_damage *= 0.8  # 20% damage reduction
+	
 	hp -= actual_damage
 	healthBar.max_value = maxhp
 	healthBar.value = hp
@@ -330,6 +392,12 @@ func _on_hurt_box_hurt(damage, _angle, _knockback):
 	modulate = Color(1.0, 0.3, 0.4, 1.0)
 	var tween = create_tween()
 	tween.tween_property(self, "modulate", Color.WHITE, 0.2)
+	
+	# Second Wind trigger check
+	if second_wind_active and not second_wind_used:
+		var hp_threshold = maxhp * 0.25
+		if hp <= hp_threshold and hp > 0:
+			trigger_second_wind()
 	
 	if hp <= 0:
 		death()
@@ -677,6 +745,35 @@ func upgrade_character(upgrade):
 		"food":
 			hp += 20
 			hp = clamp(hp,0,maxhp)
+		# ===== NEW BUILD-DEFINING PASSIVES =====
+		"bloodpact1":
+			blood_pact_active = true
+			blood_pact_damage_mult = 0.25
+			# Reduce max HP by 10%
+			var hp_loss = maxhp * 0.10
+			maxhp -= int(hp_loss)
+			hp = min(hp, maxhp)
+			damage_bonus += 0.25
+		"overcharge1":
+			overcharge_level = 1
+		"overcharge2":
+			overcharge_level = 2
+		"overcharge3":
+			overcharge_level = 3
+		"arcaneecho1":
+			arcane_echo_level = 1
+			arcane_echo_proc_chance = 0.12
+		"arcaneecho2":
+			arcane_echo_level = 2
+			arcane_echo_proc_chance = 0.16
+		"arcaneecho3":
+			arcane_echo_level = 3
+			arcane_echo_proc_chance = 0.20
+		"arcaneecho4":
+			arcane_echo_level = 4
+			arcane_echo_proc_chance = 0.25
+		"secondwind1":
+			second_wind_active = true
 	adjust_gui_collection(upgrade)
 	attack()
 	var option_children = upgradeOptions.get_children()
@@ -694,41 +791,44 @@ func upgrade_character(upgrade):
 	calculate_experience(0)
 
 func check_evolutions():
-	# Holy Cross + Armor4 = Divine Wrath
-	if not holycross_evolved and holycross_level >= 4 and "armor4" in collected_upgrades:
-		holycross_evolved = true
-		show_evolution_message("Divine Wrath")
+	# New choice-based evolution system
+	# When a weapon reaches level 4, show the evolution popup with dual-path options
 	
-	# Fire Ring + Speed4 = Inferno Aura
-	if not firering_evolved and firering_level >= 4 and "speed4" in collected_upgrades:
-		firering_evolved = true
-		# Respawn fire rings as evolved version
-		_firering_spawned = false
-		# Remove old fire rings
-		for child in get_children():
-			if child.is_in_group("attack") and child.has_method("update_fire_ring"):
-				child.queue_free()
-		show_evolution_message("Inferno Aura")
+	# Holy Cross at level 4 - offer evolution choice
+	if not holycross_evolved and holycross_level >= 4:
+		if not GameManager or not GameManager.is_weapon_evolved("holycross"):
+			show_evolution_popup_for_weapon("holycross", "Holy Cross")
+			return  # Only show one evolution at a time
 	
-	# Lightning + Crown4 = Storm Caller
-	if not lightning_evolved and lightning_level >= 4 and "crown4" in collected_upgrades:
-		lightning_evolved = true
-		show_evolution_message("Storm Caller")
+	# Fire Ring at level 4 - offer evolution choice
+	if not firering_evolved and firering_level >= 4:
+		if not GameManager or not GameManager.is_weapon_evolved("firering"):
+			show_evolution_popup_for_weapon("firering", "Fire Ring")
+			return
 	
-	# Magic Missile + Luck4 = Arcane Barrage
-	if not magicmissile_evolved and magicmissile_level >= 4 and "luck4" in collected_upgrades:
-		magicmissile_evolved = true
-		show_evolution_message("Arcane Barrage")
+	# Lightning at level 4 - offer evolution choice
+	if not lightning_evolved and lightning_level >= 4:
+		if not GameManager or not GameManager.is_weapon_evolved("lightning"):
+			show_evolution_popup_for_weapon("lightning", "Lightning")
+			return
 	
-	# Ice Spear + Tome4 = Frost Nova
-	if not icespear_evolved and icespear_level >= 4 and "tome4" in collected_upgrades:
-		icespear_evolved = true
-		show_evolution_message("Frost Nova")
+	# Magic Missile at level 4 - offer evolution choice
+	if not magicmissile_evolved and magicmissile_level >= 4:
+		if not GameManager or not GameManager.is_weapon_evolved("magicmissile"):
+			show_evolution_popup_for_weapon("magicmissile", "Magic Missile")
+			return
 	
-	# Tornado + Scroll4 = Maelstrom
-	if not tornado_evolved and tornado_level >= 4 and "scroll4" in collected_upgrades:
-		tornado_evolved = true
-		show_evolution_message("Maelstrom")
+	# Ice Spear at level 4 - offer evolution choice
+	if not icespear_evolved and icespear_level >= 4:
+		if not GameManager or not GameManager.is_weapon_evolved("icespear"):
+			show_evolution_popup_for_weapon("icespear", "Ice Spear")
+			return
+	
+	# Tornado at level 4 - offer evolution choice
+	if not tornado_evolved and tornado_level >= 4:
+		if not GameManager or not GameManager.is_weapon_evolved("tornado"):
+			show_evolution_popup_for_weapon("tornado", "Tornado")
+			return
 
 func show_evolution_message(weapon_name: String):
 	# Display evolution notification
@@ -743,6 +843,63 @@ func show_evolution_message(weapon_name: String):
 	modulate = Color(1.5, 1.3, 0.5, 1.0)
 	var tween = create_tween()
 	tween.tween_property(self, "modulate", Color.WHITE, 0.5)
+
+# ===== NEW PASSIVE EFFECT FUNCTIONS =====
+
+func trigger_second_wind():
+	"""Triggers Second Wind clutch save mechanic."""
+	second_wind_used = true
+	second_wind_cooldown = 60.0  # 60 second cooldown
+	second_wind_resist_active = true
+	second_wind_resist_timer = 5.0  # 5 second damage resistance
+	
+	# Heal 12 HP
+	hp += 12
+	hp = min(hp, maxhp)
+	healthBar.value = hp
+	
+	# Visual feedback - golden flash
+	modulate = Color(1.5, 1.2, 0.5, 1.0)
+	var tween = create_tween()
+	tween.tween_property(self, "modulate", Color.WHITE, 0.3)
+	
+	# Screen shake
+	var camera = get_viewport().get_camera_2d()
+	if camera and camera.has_method("shake"):
+		camera.shake(6.0, 0.5)
+	
+	# Spawn particles
+	ParticleFactory.spawn_hit_particles(get_parent(), global_position, 10, Color(1.0, 0.9, 0.4))
+	
+	print("[Second Wind] Triggered! Healed 12 HP, +20% resist for 5s")
+
+func on_kill_trigger_overcharge():
+	"""Called when player kills an enemy to trigger Overcharge cooldown reduction."""
+	if overcharge_level <= 0:
+		return
+	
+	# Calculate reduction based on level
+	var reduction = 0.08  # 8% base
+	match overcharge_level:
+		2: reduction = 0.12
+		3: reduction = 0.16
+	
+	# Stack the buff
+	overcharge_cooldown_buff += reduction
+	overcharge_cooldown_buff = min(overcharge_cooldown_buff, 0.50)  # Cap at 50%
+	
+	# Reset timer
+	var duration = 3.0
+	if overcharge_level >= 3:
+		duration = 4.0
+	overcharge_timer = duration
+	
+	# Apply to spell_cooldown temporarily (will decay)
+	# The actual application happens in attack speed calculations
+
+func get_effective_cooldown_reduction() -> float:
+	"""Returns total cooldown reduction including temporary Overcharge buff."""
+	return spell_cooldown + overcharge_cooldown_buff
 	
 func get_random_item():
 	# Count current unique weapons
@@ -883,3 +1040,122 @@ func death():
 func _on_btn_menu_click_end():
 	get_tree().paused = false
 	var _level = get_tree().change_scene_to_file("res://TitleScreen/menu.tscn")
+
+# ===== GameManager Signal Handlers =====
+
+func _on_gold_collected(_amount: int):
+	update_resource_hud()
+
+func _on_essence_collected(_amount: int):
+	update_resource_hud()
+	# Visual feedback for essence drop
+	modulate = Color(0.8, 0.6, 1.2, 1.0)
+	var tween = create_tween()
+	tween.tween_property(self, "modulate", Color.WHITE, 0.3)
+
+func _on_game_manager_enemy_killed(_enemy_type: String, _position: Vector2):
+	# Trigger Overcharge passive on kill
+	on_kill_trigger_overcharge()
+	
+	# Check for Arcane Echo (this is handled in the attack scripts, not here)
+	# Just update kill counter
+
+func update_resource_hud():
+	"""Updates the gold and essence display in the HUD."""
+	if GameManager:
+		if goldLabel:
+			goldLabel.text = "Gold: %d" % GameManager.get_gold()
+		if essenceLabel:
+			essenceLabel.text = "Essence: %d" % GameManager.get_essence()
+
+# ===== Evolution System Handlers =====
+
+func _on_evolution_selected(weapon_id: String, evolution_data: Dictionary):
+	"""Called when player selects an evolution from the popup."""
+	print("[Player] Evolution selected: %s -> %s" % [weapon_id, evolution_data.get("id", "unknown")])
+	
+	# Spend resources
+	var gold_cost = evolution_data.get("cost_gold", 0)
+	var essence_cost = evolution_data.get("cost_essence", 0)
+	
+	if not GameManager.spend_gold(gold_cost):
+		print("[Player] Not enough gold!")
+		return
+	
+	if essence_cost > 0 and not GameManager.spend_essence(essence_cost):
+		print("[Player] Not enough essence!")
+		GameManager.add_gold(gold_cost)  # Refund gold
+		return
+	
+	# Apply evolution based on weapon
+	apply_evolution(weapon_id, evolution_data)
+	
+	# Update HUD
+	update_resource_hud()
+	
+	# Visual feedback
+	show_evolution_message(evolution_data.get("display_name", "Evolution"))
+
+func apply_evolution(weapon_id: String, evolution_data: Dictionary):
+	"""Applies the selected evolution to the weapon."""
+	match weapon_id:
+		"firering":
+			firering_evolved = true
+			_firering_spawned = false
+			# Remove old fire rings
+			for child in get_children():
+				if child.is_in_group("attack") and child.has_method("update_fire_ring"):
+					child.queue_free()
+		"lightning":
+			lightning_evolved = true
+		"magicmissile":
+			magicmissile_evolved = true
+		"icespear":
+			icespear_evolved = true
+		"tornado":
+			tornado_evolved = true
+		"javelin":
+			# Javelin evolution handled differently
+			pass
+		"holycross":
+			holycross_evolved = true
+	
+	# Mark as evolved in GameManager
+	if GameManager:
+		if not weapon_id in GameManager.current_run.evolved_weapons:
+			GameManager.current_run.evolved_weapons.append(weapon_id)
+
+func show_evolution_popup_for_weapon(weapon_id: String, weapon_name: String):
+	"""Shows the evolution popup for a max-level weapon."""
+	if not evolution_popup:
+		print("[Player] Evolution popup not found!")
+		return
+	
+	# Load evolution database
+	var EvolutionDb = load("res://Data/evolution_db.gd").new()
+	
+	# Get passive levels for requirement checking
+	var passives = {}
+	for upgrade in collected_upgrades:
+		var base = upgrade.rstrip("0123456789")
+		var level_str = upgrade.substr(base.length())
+		if level_str.is_valid_int():
+			var level = level_str.to_int()
+			if not passives.has(base) or passives[base] < level:
+				passives[base] = level
+	
+	# Get available evolutions
+	var evolutions = EvolutionDb.get_available_evolutions(
+		weapon_id,
+		4,  # Max weapon level
+		passives,
+		GameManager.get_gold() if GameManager else 0,
+		GameManager.get_essence() if GameManager else 0
+	)
+	
+	if evolutions.is_empty():
+		print("[Player] No evolutions available for %s" % weapon_id)
+		return
+	
+	# Show the popup
+	evolution_popup.show_evolution(weapon_id, weapon_name, evolutions)

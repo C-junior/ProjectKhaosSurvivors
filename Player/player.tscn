@@ -254,6 +254,30 @@ columns = 10
 [node name="KillCounter" parent="GUILayer/GUI" instance=ExtResource("4_p5o4e")]
 layout_mode = 1
 
+[node name="EssenceLabel" type="Label" parent="GUILayer/GUI"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 1100.0
+offset_top = 48.0
+offset_right = 1260.0
+offset_bottom = 80.0
+theme_override_colors/font_color = Color(0.6, 0.3, 1, 1)
+theme_override_font_sizes/font_size = 18
+text = "Essence: 0"
+horizontal_alignment = 2
+
+[node name="GoldLabel" type="Label" parent="GUILayer/GUI"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 1100.0
+offset_top = 80.0
+offset_right = 1260.0
+offset_bottom = 112.0
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+theme_override_font_sizes/font_size = 18
+text = "Gold: 0"
+horizontal_alignment = 2
+
 [node name="PauseMenu" parent="." instance=ExtResource("13_pause")]
 
 [node name="RunSummary" parent="." instance=ExtResource("14_summary")]
