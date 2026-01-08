@@ -1,8 +1,9 @@
-[gd_scene load_steps=4 format=3 uid="uid://dcyka5e06knff"]
+[gd_scene load_steps=5 format=3 uid="uid://dcyka5e06knff"]
 
 [ext_resource type="Script" uid="uid://bq5n2mk7ycmp2" path="res://TitleScreen/menu.gd" id="1_oi0p3"]
 [ext_resource type="FontFile" uid="uid://cb4e8g30xxp5u" path="res://Font/tenderness.otf" id="1_xdjxl"]
 [ext_resource type="PackedScene" uid="uid://b7c7gsdx2rkjm" path="res://Utility/basic_button.tscn" id="3_kwsdd"]
+[ext_resource type="PackedScene" uid="uid://csettingsmenu01" path="res://TitleScreen/settings_menu.tscn" id="4_settings"]
 
 [node name="Menu" type="Control"]
 layout_mode = 3
@@ -32,27 +33,38 @@ vertical_alignment = 1
 [node name="btn_play" parent="." instance=ExtResource("3_kwsdd")]
 layout_mode = 0
 offset_left = 540.0
+offset_top = 420.0
+offset_right = 740.0
+offset_bottom = 480.0
+text = "Play"
+
+[node name="btn_shop" type="Button" parent="."]
+layout_mode = 0
+offset_left = 540.0
 offset_top = 500.0
 offset_right = 740.0
 offset_bottom = 560.0
-text = "Play"
+text = "Shop"
 
-[node name="btn_exit" parent="." instance=ExtResource("3_kwsdd")]
+[node name="btn_settings" type="Button" parent="."]
 layout_mode = 0
 offset_left = 540.0
 offset_top = 580.0
 offset_right = 740.0
 offset_bottom = 640.0
-text = "Exit"
+text = "Settings"
 
-[node name="btn_shop" type="Button" parent="."]
+[node name="btn_exit" parent="." instance=ExtResource("3_kwsdd")]
 layout_mode = 0
 offset_left = 540.0
-offset_top = 420.0
+offset_top = 660.0
 offset_right = 740.0
-offset_bottom = 480.0
-text = "Shop"
+offset_bottom = 720.0
+text = "Exit"
+
+[node name="SettingsMenu" parent="." instance=ExtResource("4_settings")]
 
 [connection signal="click_end" from="btn_play" to="." method="_on_btn_play_click_end"]
-[connection signal="click_end" from="btn_exit" to="." method="_on_btn_exit_click_end"]
 [connection signal="pressed" from="btn_shop" to="." method="_on_btn_shop_click_end"]
+[connection signal="pressed" from="btn_settings" to="." method="_on_btn_settings_click_end"]
+[connection signal="click_end" from="btn_exit" to="." method="_on_btn_exit_click_end"]

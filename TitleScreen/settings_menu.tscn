@@ -1,0 +1,131 @@
+[gd_scene load_steps=2 format=3 uid="uid://csettingsmenu01"]
+
+[ext_resource type="Script" path="res://TitleScreen/settings_menu.gd" id="1_settings"]
+
+[node name="SettingsMenu" type="CanvasLayer"]
+layer = 20
+script = ExtResource("1_settings")
+
+[node name="Panel" type="Panel" parent="."]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = -220.0
+offset_right = 200.0
+offset_bottom = 220.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBox" type="VBoxContainer" parent="Panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = 20.0
+offset_right = -20.0
+offset_bottom = -20.0
+theme_override_constants/separation = 12
+
+[node name="Title" type="Label" parent="Panel/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Settings"
+horizontal_alignment = 1
+
+[node name="Separator1" type="HSeparator" parent="Panel/VBox"]
+layout_mode = 2
+
+[node name="ResolutionRow" type="HBoxContainer" parent="Panel/VBox"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Panel/VBox/ResolutionRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Window Size"
+
+[node name="ResolutionDropdown" type="OptionButton" parent="Panel/VBox/ResolutionRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ScaleRow" type="HBoxContainer" parent="Panel/VBox"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Panel/VBox/ScaleRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Pixel Scale"
+
+[node name="ScaleDropdown" type="OptionButton" parent="Panel/VBox/ScaleRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="FullscreenRow" type="HBoxContainer" parent="Panel/VBox"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Panel/VBox/FullscreenRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Fullscreen"
+
+[node name="FullscreenCheck" type="CheckBox" parent="Panel/VBox/FullscreenRow"]
+layout_mode = 2
+
+[node name="Separator2" type="HSeparator" parent="Panel/VBox"]
+layout_mode = 2
+
+[node name="MasterRow" type="HBoxContainer" parent="Panel/VBox"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Panel/VBox/MasterRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Master Volume"
+
+[node name="MasterSlider" type="HSlider" parent="Panel/VBox/MasterRow"]
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+max_value = 1.0
+step = 0.05
+value = 1.0
+
+[node name="SFXRow" type="HBoxContainer" parent="Panel/VBox"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Panel/VBox/SFXRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "SFX Volume"
+
+[node name="SFXSlider" type="HSlider" parent="Panel/VBox/SFXRow"]
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+max_value = 1.0
+step = 0.05
+value = 1.0
+
+[node name="MusicRow" type="HBoxContainer" parent="Panel/VBox"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Panel/VBox/MusicRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Music Volume"
+
+[node name="MusicSlider" type="HSlider" parent="Panel/VBox/MusicRow"]
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+max_value = 1.0
+step = 0.05
+value = 0.7
+
+[node name="Spacer" type="Control" parent="Panel/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="CloseButton" type="Button" parent="Panel/VBox"]
+layout_mode = 2
+text = "Close"

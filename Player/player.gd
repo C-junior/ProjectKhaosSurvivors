@@ -151,10 +151,14 @@ var dash_direction := Vector2.ZERO
 # HUD labels for essence/gold
 @onready var essenceLabel = get_node_or_null("%EssenceLabel")
 @onready var goldLabel = get_node_or_null("%GoldLabel")
+@onready var buffIndicator = get_node_or_null("%BuffIndicator")
 
 # Evolution popup (loaded dynamically)
 var evolution_popup_scene = preload("res://Player/GUI/evolution_popup.tscn")
 var evolution_popup: CanvasLayer = null
+
+# Buff indicator helper
+var BuffIndicatorScript = preload("res://Player/GUI/buff_indicator.gd")
 
 #Signal
 signal playerdeath
@@ -253,6 +257,10 @@ func _physics_process(delta):
 		overcharge_timer -= delta
 		if overcharge_timer <= 0:
 			overcharge_cooldown_buff = 0.0
+			remove_buff_indicator("overcharge")
+	
+	# Update buff indicator timers
+	_update_buff_timers(delta)
 	
 	# Second Wind cooldown
 	if second_wind_used and second_wind_cooldown > 0:
@@ -754,6 +762,8 @@ func upgrade_character(upgrade):
 			maxhp -= int(hp_loss)
 			hp = min(hp, maxhp)
 			damage_bonus += 0.25
+			# Show permanent blood pact indicator
+			add_buff_indicator("blood_pact", -1)  # -1 = permanent
 		"overcharge1":
 			overcharge_level = 1
 		"overcharge2":
@@ -871,6 +881,9 @@ func trigger_second_wind():
 	# Spawn particles
 	ParticleFactory.spawn_hit_particles(get_parent(), global_position, 10, Color(1.0, 0.9, 0.4))
 	
+	# Show buff indicator
+	add_buff_indicator("second_wind_resist", 5.0)
+	
 	print("[Second Wind] Triggered! Healed 12 HP, +20% resist for 5s")
 
 func on_kill_trigger_overcharge():
@@ -893,6 +906,10 @@ func on_kill_trigger_overcharge():
 	if overcharge_level >= 3:
 		duration = 4.0
 	overcharge_timer = duration
+	
+	# Show/update buff indicator with stacks
+	var stacks = int(overcharge_cooldown_buff / 0.08)
+	add_buff_indicator("overcharge", duration, stacks)
 	
 	# Apply to spell_cooldown temporarily (will decay)
 	# The actual application happens in attack speed calculations
@@ -1159,3 +1176,120 @@ func show_evolution_popup_for_weapon(weapon_id: String, weapon_name: String):
 	
 	# Show the popup
 	evolution_popup.show_evolution(weapon_id, weapon_name, evolutions)
+
+# ===== Buff Indicator Helpers =====
+
+const BUFF_ICONS = {
+	"blood_pact": {"color": Color(0.8, 0.2, 0.2), "label": "BP"},
+	"overcharge": {"color": Color(0.2, 0.8, 1.0), "label": "OC"},
+	"arcane_echo": {"color": Color(0.6, 0.3, 1.0), "label": "AE"},
+	"second_wind": {"color": Color(0.3, 1.0, 0.5), "label": "SW"},
+	"second_wind_resist": {"color": Color(1.0, 0.9, 0.3), "label": "⚡"}
+}
+
+var active_buffs: Dictionary = {}
+
+func add_buff_indicator(buff_id: String, duration: float = -1, stacks: int = 1):
+	"""Add or update a buff indicator in the HUD."""
+	if not buffIndicator:
+		return
+	
+	if active_buffs.has(buff_id):
+		# Update existing buff
+		var buff_data = active_buffs[buff_id]
+		buff_data.timer = duration
+		buff_data.stacks = stacks
+		_update_buff_display(buff_id)
+		# Pulse animation
+		var tween = create_tween()
+		tween.tween_property(buff_data.node, "scale", Vector2(1.2, 1.2), 0.1)
+		tween.tween_property(buff_data.node, "scale", Vector2.ONE, 0.1)
+	else:
+		# Create new buff icon
+		var icon = _create_buff_icon(buff_id)
+		buffIndicator.add_child(icon)
+		active_buffs[buff_id] = {
+			"node": icon,
+			"timer": duration,
+			"stacks": stacks
+		}
+		# Animate in
+		icon.modulate.a = 0
+		icon.scale = Vector2(0.5, 0.5)
+		var tween = create_tween().set_parallel()
+		tween.tween_property(icon, "modulate:a", 1.0, 0.2)
+		tween.tween_property(icon, "scale", Vector2.ONE, 0.2).set_trans(Tween.TRANS_BACK)
+
+func remove_buff_indicator(buff_id: String):
+	"""Remove a buff indicator from the HUD."""
+	if not active_buffs.has(buff_id):
+		return
+	
+	var buff_data = active_buffs[buff_id]
+	var icon = buff_data.node
+	
+	var tween = create_tween().set_parallel()
+	tween.tween_property(icon, "modulate:a", 0.0, 0.15)
+	tween.tween_property(icon, "scale", Vector2(0.5, 0.5), 0.15)
+	tween.chain().tween_callback(icon.queue_free)
+	
+	active_buffs.erase(buff_id)
+
+func _create_buff_icon(buff_id: String) -> PanelContainer:
+	"""Create a visual buff indicator icon."""
+	var panel = PanelContainer.new()
+	panel.custom_minimum_size = Vector2(28, 28)
+	
+	var style = StyleBoxFlat.new()
+	style.bg_color = BUFF_ICONS.get(buff_id, {"color": Color.WHITE}).color
+	style.bg_color.a = 0.8
+	style.corner_radius_top_left = 4
+	style.corner_radius_top_right = 4
+	style.corner_radius_bottom_left = 4
+	style.corner_radius_bottom_right = 4
+	style.border_width_top = 2
+	style.border_width_bottom = 2
+	style.border_width_left = 2
+	style.border_width_right = 2
+	style.border_color = BUFF_ICONS.get(buff_id, {"color": Color.WHITE}).color
+	panel.add_theme_stylebox_override("panel", style)
+	
+	var label = Label.new()
+	label.text = BUFF_ICONS.get(buff_id, {"label": "?"}).label
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.add_theme_font_size_override("font_size", 12)
+	panel.add_child(label)
+	
+	var stack_label = Label.new()
+	stack_label.name = "StackLabel"
+	stack_label.text = ""
+	stack_label.add_theme_font_size_override("font_size", 9)
+	panel.add_child(stack_label)
+	
+	return panel
+
+func _update_buff_display(buff_id: String):
+	"""Update stack count display for a buff."""
+	if not active_buffs.has(buff_id):
+		return
+	
+	var buff_data = active_buffs[buff_id]
+	var stack_label = buff_data.node.get_node_or_null("StackLabel")
+	if stack_label and buff_data.stacks > 1:
+		stack_label.text = "x%d" % buff_data.stacks
+
+func _update_buff_timers(delta: float):
+	"""Update buff timers and remove expired buffs."""
+	var to_remove = []
+	
+	for buff_id in active_buffs:
+		var buff_data = active_buffs[buff_id]
+		if buff_data.timer > 0:
+			buff_data.timer -= delta
+			if buff_data.timer <= 0:
+				to_remove.append(buff_id)
+	
+	for buff_id in to_remove:
+		remove_buff_indicator(buff_id)
+
