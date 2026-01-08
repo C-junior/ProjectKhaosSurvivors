@@ -1292,4 +1292,3 @@ func _update_buff_timers(delta: float):
 	
 	for buff_id in to_remove:
 		remove_buff_indicator(buff_id)
-

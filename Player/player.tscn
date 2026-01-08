@@ -285,8 +285,8 @@ offset_left = 1050.0
 offset_top = 120.0
 offset_right = 1260.0
 offset_bottom = 160.0
-alignment = 2
 theme_override_constants/separation = 4
+alignment = 2
 
 [node name="PauseMenu" parent="." instance=ExtResource("13_pause")]
 

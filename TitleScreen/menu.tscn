@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://bq5n2mk7ycmp2" path="res://TitleScreen/menu.gd" id="1_oi0p3"]
 [ext_resource type="FontFile" uid="uid://cb4e8g30xxp5u" path="res://Font/tenderness.otf" id="1_xdjxl"]
 [ext_resource type="PackedScene" uid="uid://b7c7gsdx2rkjm" path="res://Utility/basic_button.tscn" id="3_kwsdd"]
-[ext_resource type="PackedScene" uid="uid://csettingsmenu01" path="res://TitleScreen/settings_menu.tscn" id="4_settings"]
+[ext_resource type="PackedScene" uid="uid://c20o3pywulcd5" path="res://TitleScreen/settings_menu.tscn" id="4_settings"]
 
 [node name="Menu" type="Control"]
 layout_mode = 3
