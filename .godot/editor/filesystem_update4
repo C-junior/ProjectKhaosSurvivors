@@ -24,3 +24,5 @@ res://Player/Attack/frost_nova.tscn
 res://Enemy/enemy_bomber.tscn
 res://Enemy/enemy_ghost.tscn
 res://Enemy/enemy_slime.tscn
+res://Player/GUI/item_container.gd
+res://Utility/poi_spawner.gd

@@ -1,0 +1,43 @@
+[gd_scene load_steps=4 format=3 uid="uid://ngw1anx3aif5"]
+
+[ext_resource type="Script" path="res://Objects/POI/cursed_chest.gd" id="1_chest"]
+[ext_resource type="Texture2D" uid="uid://shrine_glow" path="res://Textures/poi/shrine_glow.png" id="2_glow"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_activation"]
+radius = 35.0
+
+[node name="CursedChest" type="Area2D"]
+collision_layer = 0
+collision_mask = 1
+script = ExtResource("1_chest")
+glow_color = Color(0.8, 0.2, 0.2, 1)
+
+[node name="GlowSprite2D" type="Sprite2D" parent="."]
+modulate = Color(0.8, 0.2, 0.2, 0.6)
+scale = Vector2(0.1, 0.1)
+texture = ExtResource("2_glow")
+
+[node name="ChestSprite" type="Sprite2D" parent="."]
+modulate = Color(0.6, 0.15, 0.15, 1)
+scale = Vector2(0.06, 0.06)
+texture = ExtResource("2_glow")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_activation")
+
+[node name="ExpirationTimer" type="Timer" parent="."]
+wait_time = 40.0
+one_shot = true
+
+[node name="CurseLabel" type="Label" parent="."]
+visible = false
+offset_left = -60.0
+offset_top = -60.0
+offset_right = 60.0
+offset_bottom = -30.0
+theme_override_colors/font_color = Color(1, 0.3, 0.3, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/font_size = 14
+horizontal_alignment = 1
+vertical_alignment = 1

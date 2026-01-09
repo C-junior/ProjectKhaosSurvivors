@@ -10,9 +10,18 @@ extends Node2D
 @export var spawn_distance_min: float = 150.0  ## Minimum distance from player
 @export var spawn_distance_max: float = 300.0  ## Maximum distance from player
 
-# POI scenes
+# POI scenes with spawn weights
 var poi_scenes = {
-	"challenge_shrine": preload("res://Objects/POI/challenge_shrine.tscn")
+	"challenge_shrine": preload("res://Objects/POI/challenge_shrine.tscn"),
+	"arcane_altar": preload("res://Objects/POI/arcane_altar.tscn"),
+	"cursed_chest": preload("res://Objects/POI/cursed_chest.tscn")
+}
+
+# Spawn weights (higher = more common)
+var poi_weights = {
+	"challenge_shrine": 50,  # Most common
+	"arcane_altar": 30,      # Medium rarity
+	"cursed_chest": 20       # Rarer
 }
 
 # State
@@ -56,12 +65,12 @@ func _process(delta: float):
 		time_until_next_spawn = randf_range(spawn_interval_min, spawn_interval_max)
 
 func spawn_poi():
-	"""Spawn a random POI at a valid position."""
+	"""Spawn a random POI at a valid position using weighted selection."""
 	if not player:
 		return
 	
-	# For MVP, only spawn challenge shrines
-	var poi_type = "challenge_shrine"
+	# Weighted random POI selection
+	var poi_type = _get_weighted_random_poi()
 	
 	if not poi_scenes.has(poi_type):
 		push_warning("[POI Spawner] Unknown POI type: %s" % poi_type)
@@ -78,8 +87,28 @@ func spawn_poi():
 	get_parent().add_child(poi)
 	active_pois.append(poi)
 	
+	# Emit to both local and global event bus
 	emit_signal("poi_spawned", poi)
+	if GameEvents:
+		GameEvents.emit_poi_event("spawned", poi, poi_type)
+	
 	print("[POI Spawner] Spawned %s at %s. Active POIs: %d" % [poi_type, poi.global_position, active_pois.size()])
+
+func _get_weighted_random_poi() -> String:
+	"""Select a POI type based on spawn weights."""
+	var total_weight = 0
+	for weight in poi_weights.values():
+		total_weight += weight
+	
+	var roll = randi() % total_weight
+	var cumulative = 0
+	
+	for poi_type in poi_weights.keys():
+		cumulative += poi_weights[poi_type]
+		if roll < cumulative:
+			return poi_type
+	
+	return poi_weights.keys()[0]  # Fallback
 
 func get_spawn_position() -> Vector2:
 	"""Get a valid spawn position around the player."""

@@ -19,6 +19,7 @@ config/icon="res://icon.svg"
 
 UpgradeDb="*res://Utility/upgrade_db.tscn"
 GameManager="*res://Autoload/game_manager.gd"
+GameEvents="*res://Autoload/game_events.gd"
 
 [display]
 
