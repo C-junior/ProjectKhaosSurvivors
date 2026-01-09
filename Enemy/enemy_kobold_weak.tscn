@@ -61,7 +61,7 @@ motion_mode = 1
 script = ExtResource("1_1bh7b")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
-scale = Vector2(0.75, 0.75)
+scale = Vector2(1.5, 1.5)
 texture = ExtResource("2_ojadc")
 hframes = 2
 

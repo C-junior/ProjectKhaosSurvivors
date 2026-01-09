@@ -105,10 +105,13 @@ func _on_scale_selected(index: int):
 	current_scale_index = index
 	var scale_factor = SCALE_OPTIONS[index].scale
 	
-	# Update viewport scale
-	# The base resolution is 640x360 (retro)
-	var base_size = Vector2i(640, 360)
-	get_tree().root.content_scale_size = base_size
+	# Calculate the effective viewport size based on scale
+	# Lower content_scale_size = larger sprites on screen
+	# Base game resolution divided by scale factor
+	var base_size = Vector2i(1280, 720)  # Match project settings
+	var scaled_size = Vector2i(int(base_size.x / scale_factor), int(base_size.y / scale_factor))
+	
+	get_tree().root.content_scale_size = scaled_size
 	get_tree().root.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
 	get_tree().root.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_KEEP
 	
@@ -182,3 +185,6 @@ func _load_settings():
 		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
 	else:
 		_on_resolution_selected(current_resolution_index)
+	
+	# Apply scale setting
+	_on_scale_selected(current_scale_index)

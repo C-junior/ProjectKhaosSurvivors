@@ -68,7 +68,7 @@ enemy_type = "slime"
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 modulate = Color(0.7, 1, 0.7, 1)
-scale = Vector2(0.5, 0.5)
+scale = Vector2(1.5, 1.5)
 texture = ExtResource("2_sprite")
 hframes = 2
 

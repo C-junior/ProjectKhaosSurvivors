@@ -1,5 +1,4 @@
 res://World/world.tscn
-res://Player/player.gd
 res://Player/player.tscn
 res://Enemy/enemy_kobold_weak.tscn
 res://Utility/enemy_spawner.tscn
@@ -22,3 +21,6 @@ res://Player/Attack/fire_ring.tscn
 res://Player/Attack/magic_missile.tscn
 res://Player/Attack/arcane_barrage.tscn
 res://Player/Attack/frost_nova.tscn
+res://Enemy/enemy_bomber.tscn
+res://Enemy/enemy_ghost.tscn
+res://Enemy/enemy_slime.tscn

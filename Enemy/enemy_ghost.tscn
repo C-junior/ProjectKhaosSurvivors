@@ -68,7 +68,7 @@ enemy_type = "ghost"
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 modulate = Color(0.8, 0.6, 1, 0.6)
-scale = Vector2(0.65, 0.65)
+scale = Vector2(1.5, 1.5)
 texture = ExtResource("2_sprite")
 hframes = 2
 

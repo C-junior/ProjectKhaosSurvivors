@@ -64,6 +64,7 @@ hp = 20
 enemy_damage = 2
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
+scale = Vector2(1.5, 1.5)
 texture = ExtResource("2_xd60h")
 hframes = 2
 
